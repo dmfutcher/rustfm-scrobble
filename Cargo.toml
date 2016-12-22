@@ -1,0 +1,6 @@
+[package]
+name = "rustfm-scrobble"
+version = "0.1.0"
+authors = ["David Futcher <bobbo@ubuntu.com>"]
+
+[dependencies]
