@@ -20,12 +20,12 @@ impl LastFmClient {
         self.auth.set_user_credentials(username, password);
     }
 
-    pub fn send_unauthentication_request(&self, object: String) -> Result<(), &'static str> {
+    pub fn send_authentication_request(&self, object: String) -> Result<(), &'static str> {
         if !self.auth.is_valid() {
             return Err("Invalid authentication parameters")
         }
 
-        Ok(())
+        self.send_request(object)
     }
 
     pub fn send_authenticated_request(&self, object: String) -> Result<(), &'static str> {
@@ -33,6 +33,10 @@ impl LastFmClient {
             return Err("Not authenticated")
         }
 
+        self.send_request(object)
+    }
+
+    fn send_request(&self, object: String) -> Result<(), &'static str> {
         Ok(())
     }
 
