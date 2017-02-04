@@ -1,6 +1,8 @@
 // Last.fm scrobble API 2.0 client
 
-use auth::{AuthCredentials};
+use std::collections::HashMap;
+
+use auth::AuthCredentials;
 
 pub struct LastFmClient {
     auth: AuthCredentials
@@ -25,7 +27,9 @@ impl LastFmClient {
             return Err("Invalid authentication parameters")
         }
 
-        self.send_request(object)
+        let params = self.auth.get_auth_request_params();
+
+        self.send_request(object, params)
     }
 
     pub fn send_authenticated_request(&self, object: String) -> Result<(), &'static str> {
@@ -33,10 +37,10 @@ impl LastFmClient {
             return Err("Not authenticated")
         }
 
-        self.send_request(object)
+        self.send_request(object, HashMap::new())
     }
 
-    fn send_request(&self, object: String) -> Result<(), &'static str> {
+    fn send_request(&self, object: String, params: HashMap<&str, String>) -> Result<(), &'static str> {
         Ok(())
     }
 

@@ -1,4 +1,5 @@
 // Authentication utilities for Last.fm Scrobble API 2.0
+use std::collections::HashMap;
 
 pub struct AuthCredentials {
     // Application specific key & secret
@@ -44,6 +45,15 @@ impl AuthCredentials {
     // Returns true if we have valid authentication parameters AND a session token
     pub fn is_authenticated(&self) -> bool {
         self.is_valid() && self.session_key.is_some()
+    }
+
+    pub fn get_auth_request_params(&self) -> HashMap<&str, String> {
+        let mut params = HashMap::new();
+        params.insert("username", self.username.clone());
+        params.insert("password", self.password.clone());
+        params.insert("api_key", self.api_key.clone());
+
+        return params
     }
 
 }
