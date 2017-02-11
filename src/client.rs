@@ -1,6 +1,9 @@
 // Last.fm scrobble API 2.0 client
 
 use std::collections::HashMap;
+use hyper::Client;
+use hyper::net::HttpsConnector;
+use hyper_native_tls::NativeTlsClient;
 
 use auth::AuthCredentials;
 
@@ -41,9 +44,31 @@ impl LastFmClient {
     }
 
     fn send_request(&self, object: &str, params: HashMap<&str, String>) -> Result<(), &'static str> {
+        let mut url = format!("https://ws.audioscrobbler.com/2.0/?method={}", object);
+        let mut url_params = params.clone();
         let signature = self.auth.get_signature(object, params);
+        url_params.insert("api_sig", signature);
+
+        for (k, v) in &url_params {
+            url.push_str(format!("&{}={}", k, v.as_str()).as_str());
+        }
+
+
+        println!("{}", url);
+
+        let ssl = NativeTlsClient::new().unwrap();
+        let connector = HttpsConnector::new(ssl);
+        let client = Client::with_connector(connector);
+
+        let result = client.post(url.as_str()).send();
+        match result {
+            Ok(resp) => {
+                println!("{}", resp.status)
+            },
+            Err(msg) => println!("{}", msg)
+        }
+
         Ok(())
     }
-
 
 }

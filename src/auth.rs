@@ -1,6 +1,9 @@
 // Authentication utilities for Last.fm Scrobble API 2.0
 use std::collections::HashMap;
 
+use crypto::md5::Md5;
+use crypto::digest::Digest;
+
 pub struct AuthCredentials {
     // Application specific key & secret
     api_key: String,
@@ -65,8 +68,9 @@ impl AuthCredentials {
             sig.push_str((k.to_string() + v).as_str())
         }
 
-        println!("{}", sig);
-        sig
+        let mut hash = Md5::new();
+        hash.input(sig.as_bytes());
+        hash.result_str()
     }
 
 }
