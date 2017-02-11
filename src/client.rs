@@ -22,17 +22,17 @@ impl LastFmClient {
         self.auth.set_user_credentials(username, password);
     }
 
-    pub fn send_authentication_request(&self, object: String) -> Result<(), &'static str> {
+    pub fn send_authentication_request(&self) -> Result<(), &'static str> {
         if !self.auth.is_valid() {
             return Err("Invalid authentication parameters")
         }
 
         let params = self.auth.get_auth_request_params();
 
-        self.send_request(object, params)
+        self.send_request("auth.getMobileSession", params)
     }
 
-    pub fn send_authenticated_request(&self, object: String) -> Result<(), &'static str> {
+    pub fn send_authenticated_request(&self, object: &str) -> Result<(), &'static str> {
         if !self.auth.is_authenticated() {
             return Err("Not authenticated")
         }
@@ -40,8 +40,10 @@ impl LastFmClient {
         self.send_request(object, HashMap::new())
     }
 
-    fn send_request(&self, object: String, params: HashMap<&str, String>) -> Result<(), &'static str> {
+    fn send_request(&self, object: &str, params: HashMap<&str, String>) -> Result<(), &'static str> {
+        let signature = self.auth.get_signature(object, params);
         Ok(())
     }
+
 
 }

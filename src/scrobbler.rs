@@ -16,6 +16,7 @@ impl Scrobbler {
 
     pub fn authenticate(&mut self, username: String, password: String) -> Result<(), &'static str> {
         self.client.set_user_credentials(username, password);
+        self.client.send_authentication_request();
 
         Err("Not implemented")
     }

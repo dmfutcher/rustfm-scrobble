@@ -56,4 +56,17 @@ impl AuthCredentials {
         return params
     }
 
+    pub fn get_signature(&self, method: &str, params: HashMap<&str, String>) -> String {
+        let mut sig_params = params.clone();
+        sig_params.insert("method", method.to_string());
+
+        let mut sig = String::new();
+        for (k, v) in &sig_params {
+            sig.push_str((k.to_string() + v).as_str())
+        }
+
+        println!("{}", sig);
+        sig
+    }
+
 }
