@@ -14,11 +14,13 @@ impl Scrobbler {
         }
     }
 
-    pub fn authenticate(&mut self, username: String, password: String) -> Result<(), &'static str> {
+    pub fn authenticate(&mut self, username: String, password: String) -> Result<(), String> {
         self.client.set_user_credentials(username, password);
-        self.client.send_authentication_request();
 
-        Err("Not implemented")
+        match self.client.send_authentication_request() {
+            Ok(body) => Ok(()),
+            Err(msg) => Err(format!("Authentication failed: {}", msg))
+        }
     }
 
     pub fn send_now_playing() -> Result<(), &'static str> {

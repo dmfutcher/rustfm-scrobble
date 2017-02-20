@@ -1,7 +1,10 @@
 // Last.fm scrobble API 2.0 client
 
 use std::collections::HashMap;
+use std::io::Read;
+
 use hyper::Client;
+use hyper::status::StatusCode;
 use hyper::net::HttpsConnector;
 use hyper_native_tls::NativeTlsClient;
 
@@ -25,9 +28,9 @@ impl LastFmClient {
         self.auth.set_user_credentials(username, password);
     }
 
-    pub fn send_authentication_request(&self) -> Result<(), &'static str> {
+    pub fn send_authentication_request(&self) -> Result<String, String> {
         if !self.auth.is_valid() {
-            return Err("Invalid authentication parameters")
+            return Err("Invalid authentication parameters".to_string())
         }
 
         let params = self.auth.get_auth_request_params();
@@ -35,15 +38,15 @@ impl LastFmClient {
         self.send_request("auth.getMobileSession", params)
     }
 
-    pub fn send_authenticated_request(&self, object: &str) -> Result<(), &'static str> {
+    pub fn send_authenticated_request(&self, object: &str) -> Result<String, String> {
         if !self.auth.is_authenticated() {
-            return Err("Not authenticated")
+            return Err("Not authenticated".to_string())
         }
 
         self.send_request(object, HashMap::new())
     }
 
-    fn send_request(&self, object: &str, params: HashMap<&str, String>) -> Result<(), &'static str> {
+    fn send_request(&self, object: &str, params: HashMap<&str, String>) -> Result<String, String> {
         let mut url = "https://ws.audioscrobbler.com/2.0/";
         let mut url_params = params.clone();
         let signature = self.auth.get_signature(object, params);
@@ -65,13 +68,19 @@ impl LastFmClient {
             .send();
 
         match result {
-            Ok(resp) => {
-                println!("{}", resp.status)
-            },
-            Err(msg) => println!("{}", msg)
-        }
+            Ok(mut resp) => {
+                if resp.status != StatusCode::Ok {
+                    return Err(format!("Non Success status ({})", resp.status));
+                }
 
-        Ok(())
+                let mut resp_body = String::new();
+                match resp.read_to_string(&mut resp_body) {
+                    Ok(_) => return Ok(resp_body),
+                    Err(_) => return Err("Failed to read response body".to_string())
+                }
+            },
+            Err(msg) => return Err(format!("{}", msg))
+        }
     }
 
 }
