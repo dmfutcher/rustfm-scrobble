@@ -44,23 +44,26 @@ impl LastFmClient {
     }
 
     fn send_request(&self, object: &str, params: HashMap<&str, String>) -> Result<(), &'static str> {
-        let mut url = format!("https://ws.audioscrobbler.com/2.0/?method={}", object);
+        let mut url = "https://ws.audioscrobbler.com/2.0/";
         let mut url_params = params.clone();
         let signature = self.auth.get_signature(object, params);
+        url_params.insert("method", object.to_string());
         url_params.insert("api_sig", signature);
 
+        let mut body = String::new();
         for (k, v) in &url_params {
-            url.push_str(format!("&{}={}", k, v.as_str()).as_str());
+            body.push_str((format!("{}={}&", k, v.as_str())).as_str());
         }
-
-
-        println!("{}", url);
 
         let ssl = NativeTlsClient::new().unwrap();
         let connector = HttpsConnector::new(ssl);
         let client = Client::with_connector(connector);
 
-        let result = client.post(url.as_str()).send();
+        let result = client
+            .post(url)
+            .body(body.as_str())
+            .send();
+
         match result {
             Ok(resp) => {
                 println!("{}", resp.status)

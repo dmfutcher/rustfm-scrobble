@@ -4,3 +4,6 @@ version = "0.1.0"
 authors = ["David Futcher <bobbo@ubuntu.com>"]
 
 [dependencies]
+hyper = "0.10.4"
+hyper-native-tls = "0.2.2"
+rust-crypto = "0.2.36"

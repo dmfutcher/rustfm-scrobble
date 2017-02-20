@@ -63,10 +63,19 @@ impl AuthCredentials {
         let mut sig_params = params.clone();
         sig_params.insert("method", method.to_string());
 
-        let mut sig = String::new();
-        for (k, v) in &sig_params {
-            sig.push_str((k.to_string() + v).as_str())
+        let mut keys = Vec::new();
+        for (k, _) in &sig_params {
+            keys.push(k);
         }
+
+        keys.sort();
+
+        let mut sig = String::new();
+        for k in keys {
+            sig.push_str((k.to_string() + sig_params[k].as_str()).as_str())
+        }
+
+        sig.push_str(self.api_secret.as_str());
 
         let mut hash = Md5::new();
         hash.input(sig.as_bytes());
