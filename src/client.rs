@@ -7,8 +7,10 @@ use hyper::Client;
 use hyper::status::StatusCode;
 use hyper::net::HttpsConnector;
 use hyper_native_tls::NativeTlsClient;
+use serde_json;
 
 use auth::AuthCredentials;
+use dto::AuthResponseDto;
 
 pub struct LastFmClient {
     auth: AuthCredentials
@@ -28,14 +30,22 @@ impl LastFmClient {
         self.auth.set_user_credentials(username, password);
     }
 
-    pub fn send_authentication_request(&self) -> Result<String, String> {
+    pub fn send_authentication_request(&mut self) -> Result<(), String> {
         if !self.auth.is_valid() {
             return Err("Invalid authentication parameters".to_string())
         }
 
         let params = self.auth.get_auth_request_params();
 
-        self.send_request("auth.getMobileSession", params)
+        match self.send_request("auth.getMobileSession", params) {
+            Ok(body) => {
+                let decoded: AuthResponseDto = serde_json::from_str(body.as_str()).unwrap();
+                self.auth.set_session_key(decoded.session.key);
+
+                Ok(())
+            },
+            Err(msg) => Err(format!("Authentication failed: {}", msg))
+        }
     }
 
     pub fn send_authenticated_request(&self, object: &str) -> Result<String, String> {
@@ -47,7 +57,7 @@ impl LastFmClient {
     }
 
     fn send_request(&self, object: &str, params: HashMap<&str, String>) -> Result<String, String> {
-        let mut url = "https://ws.audioscrobbler.com/2.0/";
+        let url = "https://ws.audioscrobbler.com/2.0/?format=json";
         let mut url_params = params.clone();
         let signature = self.auth.get_signature(object, params);
         url_params.insert("method", object.to_string());

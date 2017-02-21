@@ -7,3 +7,6 @@ authors = ["David Futcher <bobbo@ubuntu.com>"]
 hyper = "0.10.4"
 hyper-native-tls = "0.2.2"
 rust-crypto = "0.2.36"
+serde = "0.8"
+serde_derive = "0.8"
+serde_json = "0.8"

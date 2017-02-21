@@ -1,4 +1,5 @@
-use client::{LastFmClient};
+use client::LastFmClient;
+
 
 pub struct Scrobbler {
     client: LastFmClient
@@ -16,11 +17,7 @@ impl Scrobbler {
 
     pub fn authenticate(&mut self, username: String, password: String) -> Result<(), String> {
         self.client.set_user_credentials(username, password);
-
-        match self.client.send_authentication_request() {
-            Ok(body) => Ok(()),
-            Err(msg) => Err(format!("Authentication failed: {}", msg))
-        }
+        self.client.send_authentication_request()
     }
 
     pub fn send_now_playing() -> Result<(), &'static str> {

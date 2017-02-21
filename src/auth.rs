@@ -39,6 +39,10 @@ impl AuthCredentials {
         self.session_key = None
     }
 
+    pub fn set_session_key(&mut self, key: String) {
+        self.session_key = Some(key);
+    }
+
     // Returns true if there's enough valid data to attempt authentication (ignores session key)
     pub fn is_valid(&self) -> bool {
         self.api_key.len() > 0 && self.api_secret.len() > 0 && self.username.len() > 0
@@ -50,7 +54,7 @@ impl AuthCredentials {
         self.is_valid() && self.session_key.is_some()
     }
 
-    pub fn get_auth_request_params(&self) -> HashMap<&str, String> {
+    pub fn get_auth_request_params(&self) -> HashMap<&'static str, String> {
         let mut params = HashMap::new();
         params.insert("username", self.username.clone());
         params.insert("password", self.password.clone());
