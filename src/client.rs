@@ -30,7 +30,7 @@ impl LastFmClient {
         self.auth.set_user_credentials(username, password);
     }
 
-    pub fn send_authentication_request(&mut self) -> Result<(), String> {
+    pub fn authenticate(&mut self) -> Result<(), String> {
         if !self.auth.is_valid() {
             return Err("Invalid authentication parameters".to_string())
         }

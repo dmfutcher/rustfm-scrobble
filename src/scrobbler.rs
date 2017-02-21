@@ -17,7 +17,7 @@ impl Scrobbler {
 
     pub fn authenticate(&mut self, username: String, password: String) -> Result<(), String> {
         self.client.set_user_credentials(username, password);
-        self.client.send_authentication_request()
+        self.client.authenticate()
     }
 
     pub fn send_now_playing() -> Result<(), &'static str> {
