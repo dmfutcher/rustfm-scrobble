@@ -48,12 +48,17 @@ impl LastFmClient {
         }
     }
 
-    pub fn send_authenticated_request(&self, object: &str) -> Result<String, String> {
+    pub fn send_authenticated_request(&self, object: &str, params: &HashMap<&str, String>) -> Result<String, String> {
         if !self.auth.is_authenticated() {
             return Err("Not authenticated".to_string())
         }
 
-        self.send_request(object, HashMap::new())
+        let mut req_params = self.auth.get_request_params();
+        for (k, v) in params {
+            req_params.insert(k, v.clone());
+        }
+
+        self.send_request(object, req_params)
     }
 
     fn send_request(&self, object: &str, params: HashMap<&str, String>) -> Result<String, String> {

@@ -60,7 +60,15 @@ impl AuthCredentials {
         params.insert("password", self.password.clone());
         params.insert("api_key", self.api_key.clone());
 
-        return params
+        params
+    }
+
+    pub fn get_request_params(&self) -> HashMap<&'static str, String> {
+        let mut params = HashMap::new();
+        params.insert("api_key", self.api_key.clone());
+        params.insert("sk", self.session_key.clone().unwrap());
+
+        params
     }
 
     pub fn get_signature(&self, method: &str, params: HashMap<&str, String>) -> String {

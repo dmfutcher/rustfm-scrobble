@@ -1,5 +1,6 @@
 use client::LastFmClient;
 
+use std::collections::HashMap;
 
 pub struct Scrobbler {
     client: LastFmClient
@@ -20,8 +21,15 @@ impl Scrobbler {
         self.client.authenticate()
     }
 
-    pub fn send_now_playing() -> Result<(), &'static str> {
-        Err("Not implemented")
+    pub fn now_playing(&self, name: String, artist: String) -> Result<(), String> {
+        let mut params = HashMap::new();
+        params.insert("track", name);
+        params.insert("artist", artist);
+
+        match self.client.send_authenticated_request("track.updateNowPlaying", &params) {
+            Ok(_) => Ok(()),
+            Err(msg) => Err(msg)
+        }
     }
 
     pub fn send_scrobble() -> Result<(), &'static str> {
