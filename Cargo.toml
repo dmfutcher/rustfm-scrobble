@@ -2,6 +2,8 @@
 name = "rustfm-scrobble"
 version = "0.1.0"
 authors = ["David Futcher <bobbo@ubuntu.com>"]
+description = "Last.fm Scrobble client for Rust"
+license = "MIT"
 
 [dependencies]
 hyper = "0.10.4"
