@@ -10,8 +10,7 @@ readme = "README.md"
 categories = ["api-bindings", "multimedia"]
 
 [dependencies]
-hyper = "0.10.4"
-hyper-native-tls = "0.2.2"
+reqwest = "0.4.0"
 rust-crypto = "0.2.36"
 serde = "0.8"
 serde_derive = "0.8"

@@ -2,8 +2,7 @@
 //!
 //! Client for the Last.fm Scrobble API v2.0.
 
-extern crate hyper;
-extern crate hyper_native_tls;
+extern crate reqwest;
 extern crate crypto;
 
 #[macro_use]

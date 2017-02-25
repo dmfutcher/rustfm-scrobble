@@ -71,7 +71,7 @@ impl AuthCredentials {
         params
     }
 
-    pub fn get_signature(&self, method: &str, params: HashMap<&str, String>) -> String {
+    pub fn get_signature(&self, method: &str, params: &HashMap<&str, String>) -> String {
         let mut sig_params = params.clone();
         sig_params.insert("method", method.to_string());
 
