@@ -1,6 +1,6 @@
 [package]
 name = "rustfm-scrobble"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["David Futcher <bobbo@ubuntu.com>"]
 description = "Last.fm Scrobble library for Rust"
 repository = "https://github.com/bobbo/rustfm-scrobble"
@@ -12,6 +12,6 @@ categories = ["api-bindings", "multimedia"]
 [dependencies]
 reqwest = "0.4.0"
 rust-crypto = "0.2.36"
-serde = "0.8"
-serde_derive = "0.8"
-serde_json = "0.8"
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
