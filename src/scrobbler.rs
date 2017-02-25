@@ -49,10 +49,7 @@ impl Scrobbler {
         params.insert("timestamp", format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 
         match self.client.send_authenticated_request("track.scrobble", &params) {
-            Ok(body) => {
-                println!("Body: {}", body);
-                Ok(())
-            },
+            Ok(_) => Ok(()),
             Err(msg) => Err(msg)
         }
     }
