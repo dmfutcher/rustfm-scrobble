@@ -1,4 +1,4 @@
-use client::LastFmClient;
+use client::{LastFmClient, ApiOperation};
 
 use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
@@ -37,7 +37,7 @@ impl Scrobbler {
         params.insert("track", name);
         params.insert("artist", artist);
 
-        self.client.send_authenticated_request("track.updateNowPlaying", &params)
+        self.client.send_authenticated_request(ApiOperation::NowPlaying, &params)
             .map_err(ScrobblerError::new)
             .map(|_| ())
     }
@@ -50,7 +50,7 @@ impl Scrobbler {
         params.insert("artist", artist);
         params.insert("timestamp", format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 
-        self.client.send_authenticated_request("track.scrobble", &params)
+        self.client.send_authenticated_request(ApiOperation::Scrobble, &params)
             .map_err(ScrobblerError::new)
             .map(|_| ())
     }

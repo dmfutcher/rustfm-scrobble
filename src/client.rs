@@ -8,6 +8,24 @@ use serde_json;
 use auth::AuthCredentials;
 use dto::AuthResponseDto;
 
+pub enum ApiOperation {
+    AuthSession,
+    NowPlaying,
+    Scrobble
+}
+
+impl ApiOperation {
+
+    fn to_string(&self) -> String {
+        match *self {
+            ApiOperation::AuthSession => "auth.getMobileSession",
+            ApiOperation::NowPlaying => "track.updateNowPlaying",
+            ApiOperation::Scrobble => "track.scrobble"
+        }.to_string()
+    }
+
+}
+
 pub struct LastFmClient {
     auth: AuthCredentials,
     http_client: Client
@@ -36,7 +54,7 @@ impl LastFmClient {
 
         let params = self.auth.get_auth_request_params();
 
-        match self.send_request("auth.getMobileSession", params) {
+        match self.send_request(ApiOperation::AuthSession, params) {
             Ok(body) => {
                 let decoded: AuthResponseDto = serde_json::from_str(body.as_str()).unwrap();
                 self.auth.set_session_key(decoded.session.key);
@@ -47,7 +65,7 @@ impl LastFmClient {
         }
     }
 
-    pub fn send_authenticated_request(&self, object: &str, params: &HashMap<&str, String>) -> Result<String, String> {
+    pub fn send_authenticated_request(&self, operation: ApiOperation, params: &HashMap<&str, String>) -> Result<String, String> {
         if !self.auth.is_authenticated() {
             return Err("Not authenticated".to_string())
         }
@@ -57,15 +75,15 @@ impl LastFmClient {
             req_params.insert(k, v.clone());
         }
 
-        self.send_request(object, req_params)
+        self.send_request(operation, req_params)
     }
 
-    fn send_request(&self, object: &str, params: HashMap<&str, String>) -> Result<String, String> {
+    fn send_request(&self, operation: ApiOperation, params: HashMap<&str, String>) -> Result<String, String> {
         let url = "https://ws.audioscrobbler.com/2.0/?format=json";
-        let signature = self.auth.get_signature(object, &params);
+        let signature = self.auth.get_signature(operation.to_string(), &params);
 
         let mut req_params = params.clone();
-        req_params.insert("method", object.to_string());
+        req_params.insert("method", operation.to_string());
         req_params.insert("api_sig", signature);
 
         let result = self.http_client.post(url)
