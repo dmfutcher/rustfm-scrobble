@@ -2,6 +2,8 @@ use client::LastFmClient;
 
 use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
+use std::error::Error;
+use std::fmt;
 
 /// Submits song-play tracking information to Last.fm
 pub struct Scrobbler {
@@ -22,36 +24,70 @@ impl Scrobbler {
     /// Uses the given username and password (for the user to log scrobbles against), plus
     /// the API key and API secret to authenticate with Last.fm API using 'getMobileSession'
     /// authentication scheme.
-    pub fn authenticate(&mut self, username: String, password: String) -> Result<(), String> {
+    pub fn authenticate(&mut self, username: String, password: String) -> Result<(), ScrobblerError> {
         self.client.set_user_credentials(username, password);
         self.client.authenticate()
+            .map_err(ScrobblerError::new)
     }
 
     /// Registers the given track by the given artist as the currently authenticated user's
     /// "now playing" track.
-    pub fn now_playing(&self, name: String, artist: String) -> Result<(), String> {
+    pub fn now_playing(&self, name: String, artist: String) -> Result<(), ScrobblerError> {
         let mut params = HashMap::new();
         params.insert("track", name);
         params.insert("artist", artist);
 
-        match self.client.send_authenticated_request("track.updateNowPlaying", &params) {
-            Ok(_) => Ok(()),
-            Err(msg) => Err(msg)
-        }
+        self.client.send_authenticated_request("track.updateNowPlaying", &params)
+            .map_err(ScrobblerError::new)
+            .map(|_| ())
     }
 
     /// Registers a scrobble (play) of the track with the given title by the given artist in
     /// the account of the currently authenticated user at the current time.
-    pub fn scrobble(&self, name: String, artist: String) -> Result<(), String> {
+    pub fn scrobble(&self, name: String, artist: String) -> Result<(), ScrobblerError> {
         let mut params = HashMap::new();
         params.insert("track", name);
         params.insert("artist", artist);
         params.insert("timestamp", format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 
-        match self.client.send_authenticated_request("track.scrobble", &params) {
-            Ok(_) => Ok(()),
-            Err(msg) => Err(msg)
+        self.client.send_authenticated_request("track.scrobble", &params)
+            .map_err(ScrobblerError::new)
+            .map(|_| ())
+    }
+
+}
+
+#[derive(Debug)]
+pub struct ScrobblerError {
+    err_msg: String
+}
+
+impl ScrobblerError {
+
+    pub fn new(err_msg: String) -> ScrobblerError {
+        ScrobblerError {
+            err_msg: err_msg
         }
+    }
+
+}
+
+impl fmt::Display for ScrobblerError {
+
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.err_msg)
+    }
+
+}
+
+impl Error for ScrobblerError {
+
+    fn description(&self) -> &str {
+        self.err_msg.as_str()
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        None
     }
 
 }
