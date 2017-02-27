@@ -4,6 +4,9 @@ use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
 use std::error::Error;
 use std::fmt;
+use std::result;
+
+type Result<T> = result::Result<T, ScrobblerError>;
 
 /// Submits song-play tracking information to Last.fm
 pub struct Scrobbler {
@@ -24,7 +27,7 @@ impl Scrobbler {
     /// Uses the given username and password (for the user to log scrobbles against), plus
     /// the API key and API secret to authenticate with Last.fm API using 'getMobileSession'
     /// authentication scheme.
-    pub fn authenticate(&mut self, username: String, password: String) -> Result<(), ScrobblerError> {
+    pub fn authenticate(&mut self, username: String, password: String) -> Result<()> {
         self.client.set_user_credentials(username, password);
         self.client.authenticate()
             .map_err(ScrobblerError::new)
@@ -32,7 +35,7 @@ impl Scrobbler {
 
     /// Registers the given track by the given artist as the currently authenticated user's
     /// "now playing" track.
-    pub fn now_playing(&self, name: String, artist: String) -> Result<(), ScrobblerError> {
+    pub fn now_playing(&self, name: String, artist: String) -> Result<()> {
         let mut params = HashMap::new();
         params.insert("track", name);
         params.insert("artist", artist);
@@ -44,7 +47,7 @@ impl Scrobbler {
 
     /// Registers a scrobble (play) of the track with the given title by the given artist in
     /// the account of the currently authenticated user at the current time.
-    pub fn scrobble(&self, name: String, artist: String) -> Result<(), ScrobblerError> {
+    pub fn scrobble(&self, name: String, artist: String) -> Result<()> {
         let mut params = HashMap::new();
         params.insert("track", name);
         params.insert("artist", artist);
