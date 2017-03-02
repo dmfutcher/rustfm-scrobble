@@ -6,7 +6,7 @@ use reqwest::{Client, StatusCode};
 use serde_json;
 
 use auth::AuthCredentials;
-use dto::AuthResponseDto;
+use dto::{AuthResponse, SessionResponse};
 
 pub enum ApiOperation {
     AuthSession,
@@ -47,7 +47,7 @@ impl LastFmClient {
         self.auth.set_user_credentials(username, password);
     }
 
-    pub fn authenticate(&mut self) -> Result<(), String> {
+    pub fn authenticate(&mut self) -> Result<SessionResponse, String> {
         if !self.auth.is_valid() {
             return Err("Invalid authentication parameters".to_string())
         }
@@ -56,10 +56,10 @@ impl LastFmClient {
 
         match self.send_request(ApiOperation::AuthSession, params) {
             Ok(body) => {
-                let decoded: AuthResponseDto = serde_json::from_str(body.as_str()).unwrap();
-                self.auth.set_session_key(decoded.session.key);
+                let decoded: AuthResponse = serde_json::from_str(body.as_str()).unwrap();
+                self.auth.set_session_key(decoded.session.clone().key);
 
-                Ok(())
+                Ok(decoded.session)
             },
             Err(msg) => Err(format!("Authentication failed: {}", msg))
         }

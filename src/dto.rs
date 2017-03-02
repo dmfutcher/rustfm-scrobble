@@ -1,9 +1,11 @@
-#[derive(Deserialize)]
-pub struct AuthResponseDto {
-    pub session: SessionDto
+#[derive(Deserialize, Debug)]
+pub struct AuthResponse {
+    pub session: SessionResponse
 }
 
-#[derive(Deserialize)]
-pub struct SessionDto {
-    pub key: String
+#[derive(Deserialize, Debug, Clone)]
+pub struct SessionResponse {
+    pub key: String,
+    pub subscriber: i64,
+    pub name: String
 }

@@ -1,4 +1,5 @@
 use client::{LastFmClient, ApiOperation};
+use dto::{SessionResponse};
 
 use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
@@ -27,7 +28,7 @@ impl Scrobbler {
     /// Uses the given username and password (for the user to log scrobbles against), plus
     /// the API key and API secret to authenticate with Last.fm API using 'getMobileSession'
     /// authentication scheme.
-    pub fn authenticate(&mut self, username: String, password: String) -> Result<()> {
+    pub fn authenticate(&mut self, username: String, password: String) -> Result<SessionResponse> {
         self.client.set_user_credentials(username, password);
         self.client.authenticate()
             .map_err(ScrobblerError::new)
