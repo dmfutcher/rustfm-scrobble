@@ -6,7 +6,12 @@ use reqwest::{Client, StatusCode};
 use serde_json;
 
 use auth::AuthCredentials;
-use dto::{AuthResponse, SessionResponse};
+use dto::{
+    AuthResponse, 
+    SessionResponse,
+    NowPlayingResponse,
+    NowPlayingResponseWrapper
+};
 
 pub enum ApiOperation {
     AuthSession,
@@ -65,11 +70,12 @@ impl LastFmClient {
         }
     }
 
-    pub fn send_now_playing(&self, params: &HashMap<&str, String>) -> Result<(), String> {
+    pub fn send_now_playing(&self, params: &HashMap<&str, String>) -> Result<NowPlayingResponse, String> {
         match self.send_authenticated_request(ApiOperation::NowPlaying, params) {
             Ok(body) => {
-                println!("{:?}", body);
-                Ok(())
+                let decoded: NowPlayingResponseWrapper = serde_json::from_str(body.as_str()).unwrap();
+                print!("{:?}", decoded);
+                Ok(decoded.nowplaying)
             },
             Err(msg) => Err(format!("Now playing request failed: {}", msg))
         }

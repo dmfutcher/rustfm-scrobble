@@ -1,5 +1,5 @@
 use client::LastFmClient;
-use dto::{SessionResponse};
+use dto::{SessionResponse, NowPlayingResponse};
 
 use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
@@ -36,7 +36,7 @@ impl Scrobbler {
 
     /// Registers the given track by the given artist as the currently authenticated user's
     /// "now playing" track.
-    pub fn now_playing(&self, name: String, artist: String) -> Result<()> {
+    pub fn now_playing(&self, name: String, artist: String) -> Result<NowPlayingResponse> {
         let mut params = HashMap::new();
         params.insert("track", name);
         params.insert("artist", artist);
