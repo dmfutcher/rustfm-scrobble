@@ -1,4 +1,4 @@
-use client::{LastFmClient, ApiOperation};
+use client::LastFmClient;
 use dto::{SessionResponse};
 
 use std::collections::HashMap;
@@ -41,9 +41,8 @@ impl Scrobbler {
         params.insert("track", name);
         params.insert("artist", artist);
 
-        self.client.send_authenticated_request(ApiOperation::NowPlaying, &params)
+        self.client.send_now_playing(&params)
             .map_err(ScrobblerError::new)
-            .map(|_| ())
     }
 
     /// Registers a scrobble (play) of the track with the given title by the given artist in
@@ -54,7 +53,7 @@ impl Scrobbler {
         params.insert("artist", artist);
         params.insert("timestamp", format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 
-        self.client.send_authenticated_request(ApiOperation::Scrobble, &params)
+        self.client.send_scrobble(&params)
             .map_err(ScrobblerError::new)
             .map(|_| ())
     }

@@ -65,6 +65,26 @@ impl LastFmClient {
         }
     }
 
+    pub fn send_now_playing(&self, params: &HashMap<&str, String>) -> Result<(), String> {
+        match self.send_authenticated_request(ApiOperation::NowPlaying, params) {
+            Ok(body) => {
+                println!("{:?}", body);
+                Ok(())
+            },
+            Err(msg) => Err(format!("Now playing request failed: {}", msg))
+        }
+    }
+
+    pub fn send_scrobble(&self, params: &HashMap<&str, String>) -> Result<(), String> {
+                match self.send_authenticated_request(ApiOperation::Scrobble, params) {
+            Ok(body) => {
+                println!("{:?}", body);
+                Ok(())
+            },
+            Err(msg) => Err(format!("Scrobble request failed: {}", msg))
+        }
+    }
+
     pub fn send_authenticated_request(&self, operation: ApiOperation, params: &HashMap<&str, String>) -> Result<String, String> {
         if !self.auth.is_authenticated() {
             return Err("Not authenticated".to_string())
