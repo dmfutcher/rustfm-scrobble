@@ -10,7 +10,9 @@ use dto::{
     AuthResponse, 
     SessionResponse,
     NowPlayingResponse,
-    NowPlayingResponseWrapper
+    NowPlayingResponseWrapper,
+    ScrobbleResponse,
+    ScrobbleResponseWrapper
 };
 
 pub enum ApiOperation {
@@ -74,18 +76,17 @@ impl LastFmClient {
         match self.send_authenticated_request(ApiOperation::NowPlaying, params) {
             Ok(body) => {
                 let decoded: NowPlayingResponseWrapper = serde_json::from_str(body.as_str()).unwrap();
-                print!("{:?}", decoded);
                 Ok(decoded.nowplaying)
             },
             Err(msg) => Err(format!("Now playing request failed: {}", msg))
         }
     }
 
-    pub fn send_scrobble(&self, params: &HashMap<&str, String>) -> Result<(), String> {
-                match self.send_authenticated_request(ApiOperation::Scrobble, params) {
+    pub fn send_scrobble(&self, params: &HashMap<&str, String>) -> Result<ScrobbleResponse, String> {
+        match self.send_authenticated_request(ApiOperation::Scrobble, params) {
             Ok(body) => {
-                println!("{:?}", body);
-                Ok(())
+                let decoded: ScrobbleResponseWrapper = serde_json::from_str(body.as_str()).unwrap();
+                Ok(decoded.scrobbles.scrobble)
             },
             Err(msg) => Err(format!("Scrobble request failed: {}", msg))
         }

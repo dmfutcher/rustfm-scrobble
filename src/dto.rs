@@ -13,7 +13,7 @@ pub struct SessionResponse {
     pub name: String
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 pub struct NowPlayingResponseWrapper {
     pub nowplaying: NowPlayingResponse
 }
@@ -27,11 +27,30 @@ pub struct NowPlayingResponse {
     pub track: CorrectableString
 }
 
+#[derive(Deserialize)]
+pub struct ScrobbleResponseWrapper {
+    pub scrobbles: Scrobbles
+}
+
+#[derive(Deserialize)]
+pub struct Scrobbles {
+    pub scrobble: ScrobbleResponse
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ScrobbleResponse {
+    pub artist: CorrectableString,
+    pub album: CorrectableString,
+    #[serde(rename="albumArtist")]
+    pub album_artist: CorrectableString,
+    pub track: CorrectableString
+}
+
 #[derive(Deserialize, Debug)]
 pub struct CorrectableString {
     #[serde(deserialize_with="CorrectableString::deserialize_corrected_field")]
     pub corrected: bool,
-    #[serde(rename="#text")]
+    #[serde(rename="#text", default)]
     pub text: String
 }
 
