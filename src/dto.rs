@@ -1,3 +1,6 @@
+use serde;
+use serde_json as json;
+
 #[derive(Deserialize, Debug)]
 pub struct AuthResponse {
     pub session: SessionResponse
@@ -26,7 +29,23 @@ pub struct NowPlayingResponse {
 
 #[derive(Deserialize, Debug)]
 pub struct CorrectableString {
-    pub corrected: String,
+    #[serde(deserialize_with="CorrectableString::deserialize_corrected_field")]
+    pub corrected: bool,
     #[serde(rename="#text")]
     pub text: String
+}
+
+impl CorrectableString {
+    
+    fn deserialize_corrected_field<D>(de: D) -> Result<bool, D::Error>
+        where D: serde::Deserializer
+    {
+        let deser_result: json::Value = try!(serde::Deserialize::deserialize(de));
+        match deser_result {
+            json::Value::String(ref s) if &*s == "1" => Ok(true),
+            json::Value::String(ref s) if &*s == "0" => Ok(false),
+            _ => Err(serde::de::Error::custom("Unexpected value")),
+        }
+    }
+
 }
