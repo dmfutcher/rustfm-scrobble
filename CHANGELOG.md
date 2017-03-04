@@ -1,3 +1,17 @@
+Version 0.2.0 - 2017-03-04
+
+  * Return API responses encoded as structs (Issue #3)
+    All Scrobbler methods now return the Last.fm API response deserialized
+    into a Rust struct for the type (see API documentation)
+  * Add ScrobbleError (with std::err:Error), instead of just returning
+    error messages as strings.
+  * Refactor Scrobbler/client code:
+    * Move request-making code out of Scrobbler and into client; Scrobbler 
+      should be an extremely minimal high(est) level layer.
+    * Improve internal representation of API methods/operations, using an enum
+      instead of passing magic strings around.
+
+
 Version 0.1.2 - 2017-02-25
 ==========================
 
