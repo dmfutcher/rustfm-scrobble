@@ -15,4 +15,10 @@ mod client;
 mod auth;
 mod dto;
 
-pub use scrobbler::Scrobbler;
+pub use scrobbler::{Scrobbler, ScrobblerError};
+pub use dto::{
+    SessionResponse,
+    NowPlayingResponse,
+    ScrobbleResponse,
+    CorrectableString
+};
