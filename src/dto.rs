@@ -1,3 +1,5 @@
+use std::fmt;
+
 use serde;
 use serde_json as json;
 
@@ -65,6 +67,14 @@ impl CorrectableString {
             json::Value::String(ref s) if &*s == "0" => Ok(false),
             _ => Err(serde::de::Error::custom("Unexpected value")),
         }
+    }
+
+}
+
+impl fmt::Display for CorrectableString {
+
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.text)
     }
 
 }
