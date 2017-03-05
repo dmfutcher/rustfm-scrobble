@@ -13,12 +13,11 @@ extern crate serde;
 mod scrobbler;
 mod client;
 mod auth;
-mod dto;
+mod models;
 
 pub use scrobbler::{Scrobbler, ScrobblerError};
-pub use dto::{
-    SessionResponse,
-    NowPlayingResponse,
-    ScrobbleResponse,
-    CorrectableString
-};
+
+pub mod responses {
+    pub use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse,
+                                CorrectableString};
+}
