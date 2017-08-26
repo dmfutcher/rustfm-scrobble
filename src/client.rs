@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 use std::io::Read;
+use reqwest;
 use reqwest::{Client, StatusCode};
 use serde_json;
 
@@ -61,7 +62,7 @@ impl LastFmClient {
 
         let params = self.auth.get_auth_request_params();
 
-        match self.send_request(ApiOperation::AuthSession, params) {
+        match self.api_request(ApiOperation::AuthSession, params) {
             Ok(body) => {
                 let decoded: AuthResponse = serde_json::from_str(body.as_str()).unwrap();
                 self.auth.set_session_key(decoded.session.clone().key);
@@ -102,24 +103,13 @@ impl LastFmClient {
             req_params.insert(k, v.clone());
         }
 
-        self.send_request(operation, req_params)
+        self.api_request(operation, req_params)
     }
 
-    fn send_request(&self, operation: ApiOperation, params: HashMap<&str, String>) -> Result<String, String> {
-        let url = "https://ws.audioscrobbler.com/2.0/?format=json";
-        let signature = self.auth.get_signature(operation.to_string(), &params);
-
-        let mut req_params = params.clone();
-        req_params.insert("method", operation.to_string());
-        req_params.insert("api_sig", signature);
-
-        let result = self.http_client.post(url)
-            .form(&req_params)
-            .send();
-
-        match result {
+    fn api_request(&self, operation: ApiOperation, params: HashMap<&str, String>) -> Result<String, String> {            
+        match self.send_request(operation, params) {
             Ok(mut resp) => {
-                let status = *resp.status();
+                let status = resp.status();
                 if status != StatusCode::Ok {
                     return Err(format!("Non Success status ({})", status));
                 }
@@ -132,6 +122,20 @@ impl LastFmClient {
             },
             Err(msg) => return Err(format!("{}", msg))
         }
+    }
+
+    fn send_request(&self, operation: ApiOperation, params: HashMap<&str, String>) -> Result<reqwest::Response, reqwest::Error> {
+        let url = "https://ws.audioscrobbler.com/2.0/?format=json";
+        let signature = self.auth.get_signature(operation.to_string(), &params);
+
+        let mut req_params = params.clone();
+        req_params.insert("method", operation.to_string());
+        req_params.insert("api_sig", signature);
+
+        self.http_client
+            .post(url)?
+            .form(&req_params)?
+            .send()
     }
 
 }
