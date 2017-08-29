@@ -14,20 +14,19 @@ pub struct AuthCredentials {
     password: String,
 
     // Dynamic parameter not included until we're authenticated
-    session_key: Option<String>
+    session_key: Option<String>,
 }
 
 impl AuthCredentials {
-
     pub fn new_partial(api_key: String, api_secret: String) -> AuthCredentials {
-        AuthCredentials{
+        AuthCredentials {
             api_key: api_key,
             api_secret: api_secret,
 
             username: String::new(),
             password: String::new(),
 
-            session_key: None
+            session_key: None,
         }
     }
 
@@ -45,8 +44,8 @@ impl AuthCredentials {
 
     // Returns true if there's enough valid data to attempt authentication (ignores session key)
     pub fn is_valid(&self) -> bool {
-        self.api_key.len() > 0 && self.api_secret.len() > 0 && self.username.len() > 0
-            && self.password.len() > 0
+        self.api_key.len() > 0 && self.api_secret.len() > 0 && self.username.len() > 0 &&
+        self.password.len() > 0
     }
 
     // Returns true if we have valid authentication parameters AND a session token
@@ -93,5 +92,4 @@ impl AuthCredentials {
         hash.input(sig.as_bytes());
         hash.result_str()
     }
-
 }

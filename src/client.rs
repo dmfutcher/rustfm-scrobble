@@ -7,47 +7,39 @@ use reqwest::{Client, StatusCode};
 use serde_json;
 
 use auth::AuthCredentials;
-use dto::{
-    AuthResponse, 
-    SessionResponse,
-    NowPlayingResponse,
-    NowPlayingResponseWrapper,
-    ScrobbleResponse,
-    ScrobbleResponseWrapper
-};
+use models::responses::{AuthResponse, SessionResponse, NowPlayingResponse,
+                        NowPlayingResponseWrapper, ScrobbleResponse, ScrobbleResponseWrapper};
 
 pub enum ApiOperation {
     AuthSession,
     NowPlaying,
-    Scrobble
+    Scrobble,
 }
 
 impl ApiOperation {
-
     fn to_string(&self) -> String {
         match *self {
-            ApiOperation::AuthSession => "auth.getMobileSession",
-            ApiOperation::NowPlaying => "track.updateNowPlaying",
-            ApiOperation::Scrobble => "track.scrobble"
-        }.to_string()
+                ApiOperation::AuthSession => "auth.getMobileSession",
+                ApiOperation::NowPlaying => "track.updateNowPlaying",
+                ApiOperation::Scrobble => "track.scrobble",
+            }
+            .to_string()
     }
-
 }
 
 pub struct LastFmClient {
     auth: AuthCredentials,
-    http_client: Client
+    http_client: Client,
 }
 
 impl LastFmClient {
-
     pub fn new(api_key: String, api_secret: String) -> LastFmClient {
         let partial_auth = AuthCredentials::new_partial(api_key, api_secret);
         let http_client = Client::new().unwrap();
 
-        LastFmClient{
+        LastFmClient {
             auth: partial_auth,
-            http_client: http_client
+            http_client: http_client,
         }
     }
 
@@ -57,7 +49,7 @@ impl LastFmClient {
 
     pub fn authenticate(&mut self) -> Result<SessionResponse, String> {
         if !self.auth.is_valid() {
-            return Err("Invalid authentication parameters".to_string())
+            return Err("Invalid authentication parameters".to_string());
         }
 
         let params = self.auth.get_auth_request_params();
@@ -68,34 +60,42 @@ impl LastFmClient {
                 self.auth.set_session_key(decoded.session.clone().key);
 
                 Ok(decoded.session)
-            },
-            Err(msg) => Err(format!("Authentication failed: {}", msg))
+            }
+            Err(msg) => Err(format!("Authentication failed: {}", msg)),
         }
     }
 
-    pub fn send_now_playing(&self, params: &HashMap<&str, String>) -> Result<NowPlayingResponse, String> {
+    pub fn send_now_playing(&self,
+                            params: &HashMap<&str, String>)
+                            -> Result<NowPlayingResponse, String> {
         match self.send_authenticated_request(ApiOperation::NowPlaying, params) {
             Ok(body) => {
-                let decoded: NowPlayingResponseWrapper = serde_json::from_str(body.as_str()).unwrap();
+                let decoded: NowPlayingResponseWrapper = serde_json::from_str(body.as_str())
+                    .unwrap();
                 Ok(decoded.nowplaying)
-            },
-            Err(msg) => Err(format!("Now playing request failed: {}", msg))
+            }
+            Err(msg) => Err(format!("Now playing request failed: {}", msg)),
         }
     }
 
-    pub fn send_scrobble(&self, params: &HashMap<&str, String>) -> Result<ScrobbleResponse, String> {
+    pub fn send_scrobble(&self,
+                         params: &HashMap<&str, String>)
+                         -> Result<ScrobbleResponse, String> {
         match self.send_authenticated_request(ApiOperation::Scrobble, params) {
             Ok(body) => {
                 let decoded: ScrobbleResponseWrapper = serde_json::from_str(body.as_str()).unwrap();
                 Ok(decoded.scrobbles.scrobble)
-            },
-            Err(msg) => Err(format!("Scrobble request failed: {}", msg))
+            }
+            Err(msg) => Err(format!("Scrobble request failed: {}", msg)),
         }
     }
 
-    pub fn send_authenticated_request(&self, operation: ApiOperation, params: &HashMap<&str, String>) -> Result<String, String> {
+    pub fn send_authenticated_request(&self,
+                                      operation: ApiOperation,
+                                      params: &HashMap<&str, String>)
+                                      -> Result<String, String> {
         if !self.auth.is_authenticated() {
-            return Err("Not authenticated".to_string())
+            return Err("Not authenticated".to_string());
         }
 
         let mut req_params = self.auth.get_request_params();
