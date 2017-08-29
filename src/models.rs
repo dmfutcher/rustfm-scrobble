@@ -59,8 +59,8 @@ pub mod responses {
     }
 
     impl CorrectableString {
-        fn deserialize_corrected_field<D>(de: D) -> Result<bool, D::Error>
-            where D: serde::Deserializer
+        fn deserialize_corrected_field<'de, D>(de: D) -> Result<bool, D::Error>
+            where D: serde::Deserializer<'de>
         {
             let deser_result: json::Value = try!(serde::Deserialize::deserialize(de));
             match deser_result {
