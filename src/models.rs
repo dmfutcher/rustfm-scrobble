@@ -48,6 +48,7 @@ pub mod responses {
         #[serde(rename="albumArtist")]
         pub album_artist: CorrectableString,
         pub track: CorrectableString,
+        pub timestamp: String,
     }
 
     #[derive(Deserialize, Debug)]
