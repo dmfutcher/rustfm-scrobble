@@ -1,3 +1,12 @@
+Version 0.2.2 - 2017-09-17
+==========================
+
+  * Add timestamp field to ScrobblerResponse (Fixes issue #4)
+  * Update to stable Serde v1.0.2
+     * Update custom deserializer for CorrectableString
+  * Refactor dto.rs into models.rs with sub-packages
+
+
 Version 0.2.1 - 2017-08-26
 ==========================
 

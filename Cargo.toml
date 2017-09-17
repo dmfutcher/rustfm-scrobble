@@ -1,7 +1,7 @@
 [package]
 name = "rustfm-scrobble"
-version = "0.2.1"
-authors = ["David Futcher <bobbo@ubuntu.com>"]
+version = "0.2.2"
+authors = ["David Futcher <david@futcher.io>"]
 description = "Last.fm Scrobble library for Rust"
 repository = "https://github.com/bobbo/rustfm-scrobble"
 keywords = ["lastfm", "last-fm", "scrobble", "api"]
