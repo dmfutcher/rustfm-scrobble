@@ -79,3 +79,30 @@ pub mod responses {
     }
 
 }
+
+pub mod metadata {
+
+    use std::collections::HashMap;
+
+    pub struct Scrobble {
+        artist: String,
+        track: String,
+    }
+
+    impl Scrobble {
+
+        pub fn new(artist: String, track: String) -> Scrobble {
+            Scrobble{ artist: artist, track: track }
+        }
+
+        pub fn as_map(&self) -> HashMap<&str, String> {
+            let mut params = HashMap::new();
+            params.insert("track", self.track.clone());
+            params.insert("artist", self.artist.clone());
+
+            params
+        }
+
+    }
+
+}

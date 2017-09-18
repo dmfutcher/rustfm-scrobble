@@ -1,7 +1,7 @@
 use client::LastFmClient;
 use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse};
+use models::metadata::Scrobble;
 
-use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
 use std::error::Error;
 use std::fmt;
@@ -34,10 +34,8 @@ impl Scrobbler {
 
     /// Registers the given track by the given artist as the currently authenticated user's
     /// "now playing" track.
-    pub fn now_playing(&self, name: String, artist: String) -> Result<NowPlayingResponse> {
-        let mut params = HashMap::new();
-        params.insert("track", name);
-        params.insert("artist", artist);
+    pub fn now_playing(&self, scrobble: Scrobble) -> Result<NowPlayingResponse> {
+        let params = scrobble.as_map();
 
         self.client
             .send_now_playing(&params)
@@ -46,10 +44,8 @@ impl Scrobbler {
 
     /// Registers a scrobble (play) of the track with the given title by the given artist in
     /// the account of the currently authenticated user at the current time.
-    pub fn scrobble(&self, name: String, artist: String) -> Result<ScrobbleResponse> {
-        let mut params = HashMap::new();
-        params.insert("track", name);
-        params.insert("artist", artist);
+    pub fn scrobble(&self, scrobble: Scrobble) -> Result<ScrobbleResponse> {
+        let mut params = scrobble.as_map();
         params.insert("timestamp",
                       format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 

@@ -21,3 +21,7 @@ pub mod responses {
     pub use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse,
                                 CorrectableString};
 }
+
+pub mod metadata {
+    pub use models::metadata::Scrobble;
+}
