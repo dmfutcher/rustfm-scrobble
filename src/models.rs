@@ -87,12 +87,12 @@ pub mod metadata {
     pub struct Scrobble {
         artist: String,
         track: String,
-        album: Option<String>,
+        album: String
     }
 
     impl Scrobble {
 
-        pub fn new(artist: String, track: String, album: Option<String>) -> Scrobble {
+        pub fn new(artist: String, track: String, album: String) -> Scrobble {
             Scrobble{ artist: artist, track: track, album: album }
         }
 
