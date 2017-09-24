@@ -1,6 +1,7 @@
-extern crate scrobbler;
+extern crate rustfm_scrobble;
 
-use scrobbler::Scrobbler;
+use rustfm_scrobble::Scrobbler;
+use rustfm_scrobble::metadata::Scrobble;
 
 // Example rustfm-scrobble client showing authentication, now playing and
 // scrobbling.
@@ -19,17 +20,23 @@ fn main() {
         Err(e) => { println!("{}", e); }
     };
 
-    match scrobbler.now_playing("You! Me! Dancing!".to_string(), "Los Campesinos!".to_string()) {
+    let artist = "Los Campesinos!".to_string();
+    let album = "No Blues".to_string();
+
+    let track_one = Scrobble::new("As Lucerne / The Low".to_string(), artist.clone(), album.clone());
+    match scrobbler.now_playing(track_one) {
         Ok(_) => { println!("Sent now playing! "); }
         Err(e) => { println!("{}", e); }
     }
 
-    match scrobbler.scrobble("To Tundra".to_string(), "Los Campesinos!".to_string()) {
+    let track_two = Scrobble::new("The Time Before the Last".to_string(), artist.clone(), album.clone());
+    match scrobbler.scrobble(track_two) {
         Ok(_) => { println!("Sent scrobble!"); }
         Err(e) => { println!("{}", e); }
     }
 
-    match scrobbler.now_playing("Sad Suppers".to_string(), "Los Campesinos!".to_string()) {
+    let track_three = Scrobble::new("Selling Rope".to_string(), artist.clone(), album.clone());
+    match scrobbler.now_playing(track_three) {
         Ok(_) => { println!("Sent now playing! "); }
         Err(e) => { println!("{}", e); }
     }
