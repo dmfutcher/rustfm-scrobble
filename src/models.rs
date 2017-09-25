@@ -84,6 +84,7 @@ pub mod metadata {
 
     use std::collections::HashMap;
 
+    /// Repesents a single track play (aka a "scrobble")
     pub struct Scrobble {
         artist: String,
         track: String,
@@ -92,10 +93,15 @@ pub mod metadata {
 
     impl Scrobble {
 
+        /// Constructs a new Scrobble instance, representing a music track
+        /// played in the past.
         pub fn new(artist: String, track: String, album: String) -> Scrobble {
             Scrobble{ artist: artist, track: track, album: album }
         }
 
+        /// Converts the Scrobble metadata (track name, artist & album name)
+        /// into a HashMap. Map keys are `"track"`, `"artist"` and `"album"`,
+        /// respectively.
         pub fn as_map(&self) -> HashMap<&str, String> {
             let mut params = HashMap::new();
             params.insert("track", self.track.clone());
