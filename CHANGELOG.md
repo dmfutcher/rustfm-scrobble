@@ -1,3 +1,11 @@
+Version 0.3.0 - 2017-09-26
+
+  * New Scrobble struct representing a single track-play (issue #8)
+    * Update Scrobbler methods to take Scrobble struct instead of artist & 
+      track names as bare Strings.
+  * Add support for submitting album data along with track name & artist (#7)
+
+
 Version 0.2.2 - 2017-09-17
 ==========================
 

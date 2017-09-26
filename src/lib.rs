@@ -23,5 +23,6 @@ pub mod responses {
 }
 
 pub mod metadata {
+    // TODO: Should this be exposed in the root?
     pub use models::metadata::Scrobble;
 }

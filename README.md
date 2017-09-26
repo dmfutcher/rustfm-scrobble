@@ -22,9 +22,9 @@ _does nothing to_ enforce [Last.fm's scrobble rules ](http://www.last.fm/api/scr
 be implemented by the client program.
 
 ## Status
-*rustfm-scrobble* is _alpha_ quality. It is feature complete (authentication,
+*rustfm-scrobble* is _beta_ quality. It is feature complete (authentication,
 now playing and scrobbles all work correctly), however remains a work in progress
-and significant API modifications are expected.
+and some public API modifications are expected.
 
 ## License
 
