@@ -1,3 +1,9 @@
+Version 0.3.1 - 2017-10-02
+
+ * Scrobble implements recommended derivable traits: Clone, PartialEq, Eq,
+   PartialOrd, Ord, Hash, Debug. (#11)
+
+
 Version 0.3.0 - 2017-09-26
 
   * New Scrobble struct representing a single track-play (issue #8)
