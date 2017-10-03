@@ -85,6 +85,7 @@ pub mod metadata {
     use std::collections::HashMap;
 
     /// Repesents a single track play (aka a "scrobble")
+    #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
     pub struct Scrobble {
         artist: String,
         track: String,
