@@ -44,8 +44,8 @@ impl AuthCredentials {
 
     // Returns true if there's enough valid data to attempt authentication (ignores session key)
     pub fn is_valid(&self) -> bool {
-        self.api_key.len() > 0 && self.api_secret.len() > 0 && self.username.len() > 0 &&
-        self.password.len() > 0
+        !self.api_key.is_empty() && !self.api_secret.is_empty() && !self.username.is_empty() &&
+        !self.password.is_empty()
     }
 
     // Returns true if we have valid authentication parameters AND a session token
@@ -75,7 +75,7 @@ impl AuthCredentials {
         sig_params.insert("method", method);
 
         let mut keys = Vec::new();
-        for (k, _) in &sig_params {
+        for k in sig_params.keys() {
             keys.push(k);
         }
 

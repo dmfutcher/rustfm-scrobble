@@ -116,11 +116,11 @@ impl LastFmClient {
 
                 let mut resp_body = String::new();
                 match resp.read_to_string(&mut resp_body) {
-                    Ok(_) => return Ok(resp_body),
-                    Err(_) => return Err("Failed to read response body".to_string())
+                    Ok(_) => Ok(resp_body),
+                    Err(_) => Err("Failed to read response body".to_string())
                 }
             },
-            Err(msg) => return Err(format!("{}", msg))
+            Err(msg) => Err(format!("{}", msg))
         }
     }
 
