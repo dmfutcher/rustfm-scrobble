@@ -16,13 +16,9 @@ mod auth;
 mod models;
 
 pub use scrobbler::{Scrobbler, ScrobblerError};
+pub use models::metadata::Scrobble;
 
 pub mod responses {
     pub use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse,
                                 CorrectableString};
-}
-
-pub mod metadata {
-    // TODO: Should this be exposed in the root?
-    pub use models::metadata::Scrobble;
 }

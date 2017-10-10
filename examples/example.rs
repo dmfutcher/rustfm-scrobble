@@ -1,7 +1,6 @@
 extern crate rustfm_scrobble;
 
-use rustfm_scrobble::Scrobbler;
-use rustfm_scrobble::metadata::Scrobble;
+use rustfm_scrobble::{Scrobbler, Scrobble};
 
 // Example rustfm-scrobble client showing authentication, now playing and
 // scrobbling.
