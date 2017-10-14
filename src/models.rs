@@ -89,7 +89,9 @@ pub mod metadata {
     pub struct Scrobble {
         artist: String,
         track: String,
-        album: String
+        album: String,
+
+        timestamp: Option<u64>
     }
 
     impl Scrobble {
@@ -97,7 +99,12 @@ pub mod metadata {
         /// Constructs a new Scrobble instance, representing a music track
         /// played in the past.
         pub fn new(artist: String, track: String, album: String) -> Scrobble {
-            Scrobble{ artist: artist, track: track, album: album }
+            Scrobble{ artist: artist, track: track, album: album, timestamp: None }
+        }
+
+        pub fn with_timestamp(&mut self, timestamp: u64) -> &mut Scrobble {
+            self.timestamp = Some(timestamp);
+            self
         }
 
         /// Converts the Scrobble metadata (track name, artist & album name)
@@ -108,6 +115,10 @@ pub mod metadata {
             params.insert("track", self.track.clone());
             params.insert("artist", self.artist.clone());
             params.insert("album", self.album.clone());
+
+            if let Some(timestamp) = self.timestamp {
+                params.insert("timestamp", timestamp.to_string());
+            }
 
             params
         }
