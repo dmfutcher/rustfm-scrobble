@@ -46,8 +46,8 @@ impl Scrobbler {
     /// the account of the currently authenticated user at the current time.
     pub fn scrobble(&self, scrobble: Scrobble) -> Result<ScrobbleResponse> {
         let mut params = scrobble.as_map();
-        params.insert("timestamp",
-                      format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
+
+        params.entry("timestamp").or_insert(format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 
         self.client
             .send_scrobble(&params)
