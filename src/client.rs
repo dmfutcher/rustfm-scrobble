@@ -19,11 +19,11 @@ pub enum ApiOperation {
 impl ApiOperation {
     fn to_string(&self) -> String {
         match *self {
-                ApiOperation::AuthSession => "auth.getMobileSession",
-                ApiOperation::NowPlaying => "track.updateNowPlaying",
-                ApiOperation::Scrobble => "track.scrobble",
-            }
-            .to_string()
+            ApiOperation::AuthSession => "auth.getMobileSession",
+            ApiOperation::NowPlaying => "track.updateNowPlaying",
+            ApiOperation::Scrobble => "track.scrobble",
+        }
+        .to_string()
     }
 }
 

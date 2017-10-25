@@ -125,4 +125,72 @@ pub mod metadata {
 
     }
 
+    /// Represents a collection of Scrobbles to be submitted in a single batch
+    pub struct ScrobbleBatch(Vec<Scrobble>);
+
+    type Iter<'a> = ::std::slice::Iter<'a, Scrobble>;
+    type IntoIter = ::std::vec::IntoIter<Scrobble>;
+
+    impl ::std::iter::FromIterator<Scrobble> for ScrobbleBatch {
+        fn from_iter<I: IntoIterator<Item=Scrobble>>(iter: I) -> Self {
+            let mut inner = vec![];
+            inner.extend(iter);
+            ScrobbleBatch(inner)
+        }
+    }
+
+    impl From<Vec<Scrobble>> for ScrobbleBatch {
+
+        fn from(ids: Vec<Scrobble>) -> ScrobbleBatch {
+            let mut multipart = ScrobbleBatch::new();
+            multipart.extend(ids);
+            multipart
+        }
+
+    }
+
+    impl IntoIterator for ScrobbleBatch {
+        type Item = Scrobble;
+        type IntoIter = IntoIter;
+
+        fn into_iter(self) -> Self::IntoIter {
+            self.0.into_iter()
+        }
+    }
+
+    impl<'a> IntoIterator for &'a ScrobbleBatch {
+        type Item = &'a Scrobble;
+        type IntoIter = Iter<'a>;
+
+        fn into_iter(self) -> Self::IntoIter {
+            self.0.iter()
+        }
+    }
+
+    impl Extend<Scrobble> for ScrobbleBatch {
+        fn extend<T: IntoIterator<Item=Scrobble>>(&mut self, iter: T) {
+            self.0.extend(iter);
+        }
+    }
+
+    impl ScrobbleBatch {
+
+        pub fn new() -> ScrobbleBatch {
+            ScrobbleBatch(vec![])
+        }
+
+        pub fn is_empty(&self) -> bool {
+            self.0.is_empty()
+        }
+
+        pub fn len(&self) -> usize {
+            self.0.len()
+        }
+
+        pub fn iter<'a>(&'a self) -> Iter<'a> {
+            self.into_iter()
+        }
+
+    }
+
 }

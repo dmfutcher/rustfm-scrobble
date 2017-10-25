@@ -16,7 +16,7 @@ mod auth;
 mod models;
 
 pub use scrobbler::{Scrobbler, ScrobblerError};
-pub use models::metadata::Scrobble;
+pub use models::metadata::{Scrobble, ScrobbleBatch};
 
 pub mod responses {
     pub use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse,
