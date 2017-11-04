@@ -2,6 +2,7 @@ rustfm-scrobble
 ===============
 
 [![Latest Version](https://img.shields.io/crates/v/rustfm-scrobble.svg)](https://crates.io/crates/rustfm-scrobble)
+[![Build Status](https://travis-ci.org/bobbo/rustfm-scrobble.svg?branch=master)](https://travis-ci.org/bobbo/rustfm-scrobble)
 
 *rustfm-scrobble* is a [Last.fm Scrobble API 2.0](http://www.last.fm/api/scrobbling)
 library for Rust. It allows easy acccess to the "scrobble" and "now playing" notification
