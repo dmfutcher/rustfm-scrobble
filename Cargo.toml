@@ -1,6 +1,6 @@
 [package]
 name = "rustfm-scrobble"
-version = "0.3.1"
+version = "0.9.0"
 authors = ["David Futcher <david@futcher.io>"]
 description = "Last.fm Scrobble library for Rust"
 repository = "https://github.com/bobbo/rustfm-scrobble"

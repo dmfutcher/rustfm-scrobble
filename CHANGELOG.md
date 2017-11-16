@@ -1,3 +1,17 @@
+Version 0.9.0 - 2017-11-16
+==========================
+
+  * Batch scrobbling support (#9):
+    * Add `Scrobbler::scrobble_batch`
+    * Add `ScrobbleBatch` type, auto-generated using `wrapped-vec` crate
+    * Add `responses::ScrobbleBatchResponse` response type
+  * Scrobble timestamping support (#2)
+  * Export `Scrobble` type in crate root; imports for most common use-case more
+    ergonomic (#12)
+  * Improve `example.rs` readability
+  * Various small code improvements
+
+
 Version 0.3.1 - 2017-10-02
 ==========================
 
