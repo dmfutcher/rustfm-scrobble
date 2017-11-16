@@ -53,26 +53,26 @@ impl AuthCredentials {
         self.is_valid() && self.session_key.is_some()
     }
 
-    pub fn get_auth_request_params(&self) -> HashMap<&'static str, String> {
+    pub fn get_auth_request_params(&self) -> HashMap<String, String> {
         let mut params = HashMap::new();
-        params.insert("username", self.username.clone());
-        params.insert("password", self.password.clone());
-        params.insert("api_key", self.api_key.clone());
+        params.insert("username".to_string(), self.username.clone());
+        params.insert("password".to_string(), self.password.clone());
+        params.insert("api_key".to_string(), self.api_key.clone());
 
         params
     }
 
-    pub fn get_request_params(&self) -> HashMap<&'static str, String> {
+    pub fn get_request_params(&self) -> HashMap<String, String> {
         let mut params = HashMap::new();
-        params.insert("api_key", self.api_key.clone());
-        params.insert("sk", self.session_key.clone().unwrap());
+        params.insert("api_key".to_string(), self.api_key.clone());
+        params.insert("sk".to_string(), self.session_key.clone().unwrap());
 
         params
     }
 
-    pub fn get_signature(&self, method: String, params: &HashMap<&str, String>) -> String {
+    pub fn get_signature(&self, method: String, params: &HashMap<String, String>) -> String {
         let mut sig_params = params.clone();
-        sig_params.insert("method", method);
+        sig_params.insert("method".to_string(), method);
 
         let mut keys = Vec::new();
         for k in sig_params.keys() {

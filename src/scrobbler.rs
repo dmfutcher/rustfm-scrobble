@@ -1,7 +1,8 @@
 use client::LastFmClient;
-use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse};
-use models::metadata::Scrobble;
+use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse, BatchScrobbleResponse};
+use models::metadata::{Scrobble, ScrobbleBatch};
 
+use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
 use std::error::Error;
 use std::fmt;
@@ -47,12 +48,32 @@ impl Scrobbler {
     pub fn scrobble(&self, scrobble: Scrobble) -> Result<ScrobbleResponse> {
         let mut params = scrobble.as_map();
 
-        params.entry("timestamp").or_insert(format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
+        params.entry("timestamp".to_string()).or_insert(format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 
         self.client
             .send_scrobble(&params)
             .map_err(ScrobblerError::new)
     }
+
+    pub fn scrobble_batch(&self, batch: ScrobbleBatch) -> Result<BatchScrobbleResponse> {
+        let mut params = HashMap::new();
+
+        for (i, scrobble) in batch.iter().enumerate() {
+            let mut scrobble_params = scrobble.as_map();
+            scrobble_params.entry("timestamp".to_string()).or_insert(format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
+
+            for (key, val) in scrobble_params.iter() {
+                // batched parameters need array notation suffix ie.
+                // "artist[1]"" = "Artist 1", "artist[2]" = "Artist 2"
+                params.insert(format!("{}[{}]", key.clone(), i), val.clone());
+            }
+        }
+
+        self.client
+            .send_batch_scrobbles(&params)
+            .map_err(ScrobblerError::new)
+    }
+
 }
 
 #[derive(Debug)]

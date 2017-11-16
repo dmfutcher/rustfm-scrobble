@@ -5,8 +5,6 @@ pub mod responses {
     use serde;
     use serde_json as json;
 
-    use wrapped_vec;
-
     #[derive(Deserialize, Debug)]
     pub struct AuthResponse {
         pub session: SessionResponse,
@@ -35,11 +33,11 @@ pub mod responses {
 
     #[derive(Deserialize)]
     pub struct ScrobbleResponseWrapper {
-        pub scrobbles: Scrobbles,
+        pub scrobbles: SingleScrobble,
     }
 
     #[derive(Deserialize)]
-    pub struct Scrobbles {
+    pub struct SingleScrobble {
         pub scrobble: ScrobbleResponse,
     }
 
@@ -51,6 +49,22 @@ pub mod responses {
         pub album_artist: CorrectableString,
         pub track: CorrectableString,
         pub timestamp: String,
+    }
+
+    #[derive(Debug)]
+    pub struct BatchScrobbleResponse {
+        pub scrobbles: Vec<ScrobbleResponse>
+    }
+
+    #[derive(Deserialize, Debug)]
+    pub struct BatchScrobbleResponseWrapper {
+        pub scrobbles: BatchScrobbles,
+    }
+
+    #[derive(Deserialize, Debug)]
+    pub struct BatchScrobbles {
+        #[serde(rename="scrobble", default)]
+        pub scrobbles: Vec<ScrobbleResponse>
     }
 
     #[derive(Deserialize, Debug)]
@@ -114,14 +128,14 @@ pub mod metadata {
         /// Converts the Scrobble metadata (track name, artist & album name)
         /// into a HashMap. Map keys are `"track"`, `"artist"` and `"album"`,
         /// respectively.
-        pub fn as_map(&self) -> HashMap<&str, String> {
+        pub fn as_map(&self) -> HashMap<String, String> {
             let mut params = HashMap::new();
-            params.insert("track", self.track.clone());
-            params.insert("artist", self.artist.clone());
-            params.insert("album", self.album.clone());
+            params.insert("track".to_string(), self.track.clone());
+            params.insert("artist".to_string(), self.artist.clone());
+            params.insert("album".to_string(), self.album.clone());
 
             if let Some(timestamp) = self.timestamp {
-                params.insert("timestamp", timestamp.to_string());
+                params.insert("timestamp".to_string(), timestamp.to_string());
             }
 
             params
