@@ -51,6 +51,7 @@ pub mod responses {
         pub timestamp: String,
     }
 
+    // TODO: Replace Vec<ScrobbleResponse> with a WrappedVec derived named Vec
     #[derive(Debug)]
     pub struct BatchScrobbleResponse {
         pub scrobbles: Vec<ScrobbleResponse>
