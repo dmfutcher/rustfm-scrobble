@@ -87,7 +87,9 @@ pub mod metadata {
     use std::collections::HashMap;
 
     /// Repesents a single track play (aka a "scrobble")
-    #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+    #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, WrappedVec)]
+    #[CollectionName="ScrobbleBatch"]
+    #[CollectionDoc="A batch of Scrobbles to be submitted to Last.fm together."]
     pub struct Scrobble {
         artist: String,
         track: String,
@@ -126,7 +128,5 @@ pub mod metadata {
         }
 
     }
-
-    wrapped_vec!(ScrobbleBatch(Vec<Scrobble>));
 
 }
