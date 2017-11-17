@@ -48,12 +48,8 @@ impl LastFmClient {
         self.auth.set_user_credentials(username, password);
     }
 
-    pub fn authenticate(&mut self) -> Result<SessionResponse, String> {
-        if !self.auth.is_valid() {
-            return Err("Invalid authentication parameters".to_string());
-        }
-
-        let params = self.auth.get_auth_request_params();
+    pub fn authenticate_with_password(&mut self) -> Result<SessionResponse, String> {
+        let params = self.auth.get_auth_request_params()?;
 
         match self.api_request(ApiOperation::AuthSession, params) {
             Ok(body) => {
@@ -64,6 +60,11 @@ impl LastFmClient {
             }
             Err(msg) => Err(format!("Authentication failed: {}", msg)),
         }
+    }
+
+    pub fn authenticate_with_session_key(&mut self, session_key: String) {
+        // TODO: How to verify session key at this point?
+        self.auth.set_session_key(session_key)
     }
 
     pub fn send_now_playing(&self,

@@ -10,11 +10,24 @@ pub struct AuthCredentials {
     api_secret: String,
 
     // Individual user's username & pass
+    user_credentials: Option<UserCredentials>,
+
+    // Long-lasting session key (used once UserCredentials are authenticated)
+    session_key: Option<String>,
+}
+
+#[derive(Clone)]
+struct UserCredentials {
     username: String,
     password: String,
+}
 
-    // Dynamic parameter not included until we're authenticated
-    session_key: Option<String>,
+impl UserCredentials {
+
+    pub fn can_authenticate(&self) -> bool {
+        !self.username.is_empty() && self.password.is_empty()
+    }
+
 }
 
 impl AuthCredentials {
@@ -23,16 +36,17 @@ impl AuthCredentials {
             api_key: api_key,
             api_secret: api_secret,
 
-            username: String::new(),
-            password: String::new(),
+            user_credentials: None,
 
             session_key: None,
         }
     }
 
     pub fn set_user_credentials(&mut self, username: String, password: String) {
-        self.username = username;
-        self.password = password;
+        self.user_credentials = Some(UserCredentials {
+            username: username,
+            password: password
+        });
 
         // Invalidate session because we have new credentials
         self.session_key = None
@@ -42,24 +56,25 @@ impl AuthCredentials {
         self.session_key = Some(key);
     }
 
-    // Returns true if there's enough valid data to attempt authentication (ignores session key)
-    pub fn is_valid(&self) -> bool {
-        !self.api_key.is_empty() && !self.api_secret.is_empty() && !self.username.is_empty() &&
-        !self.password.is_empty()
-    }
-
     // Returns true if we have valid authentication parameters AND a session token
     pub fn is_authenticated(&self) -> bool {
-        self.is_valid() && self.session_key.is_some()
+        self.session_key.is_some()
     }
 
-    pub fn get_auth_request_params(&self) -> HashMap<String, String> {
+    pub fn get_auth_request_params(&self) -> Result<HashMap<String, String>, String> {
+        let user_credentials = self.user_credentials.clone().ok_or("No user credentials available")?;
+
+        if !self.api_key.is_empty() && !self.api_secret.is_empty() &&
+            user_credentials.can_authenticate() {
+            return Err("Invalid authentication parameters".to_string());
+        }
+
         let mut params = HashMap::new();
-        params.insert("username".to_string(), self.username.clone());
-        params.insert("password".to_string(), self.password.clone());
+        params.insert("username".to_string(), user_credentials.username.clone());
+        params.insert("password".to_string(), user_credentials.password.clone());
         params.insert("api_key".to_string(), self.api_key.clone());
 
-        params
+        Ok(params)
     }
 
     pub fn get_request_params(&self) -> HashMap<String, String> {

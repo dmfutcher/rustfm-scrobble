@@ -26,11 +26,20 @@ impl Scrobbler {
     /// Uses the given username and password (for the user to log scrobbles against), plus
     /// the API key and API secret to authenticate with Last.fm API using 'getMobileSession'
     /// authentication scheme.
+    #[deprecated(since="0.9.1", note="Use `authenticate_with_password` or `authenticate_with_session_key`")]
     pub fn authenticate(&mut self, username: String, password: String) -> Result<SessionResponse> {
+        self.authenticate_with_password(username, password)
+    }
+
+    pub fn authenticate_with_password(&mut self, username: String, password: String) -> Result<SessionResponse> {
         self.client.set_user_credentials(username, password);
         self.client
-            .authenticate()
+            .authenticate_with_password()
             .map_err(ScrobblerError::new)
+    }
+
+    pub fn authenticate_with_session_key(&mut self, session_key: String) {
+        self.client.authenticate_with_session_key(session_key)
     }
 
     /// Registers the given track by the given artist as the currently authenticated user's
