@@ -56,6 +56,10 @@ impl AuthCredentials {
         self.session_key = Some(key);
     }
 
+    pub fn session_key(&self) -> Option<String> {
+        self.session_key.clone()
+    }
+
     // Returns true if we have valid authentication parameters AND a session token
     pub fn is_authenticated(&self) -> bool {
         self.session_key.is_some()

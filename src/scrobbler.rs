@@ -83,6 +83,13 @@ impl Scrobbler {
             .map_err(ScrobblerError::new)
     }
 
+    /// Gets the session key the client is currently authenticated with. Returns
+    /// `None` if not authenticated. Valid session keys can be stored and used
+    /// to authenticate with `authenticate_with_session_key`.
+    pub fn session_key(&self) -> Option<String> {
+        self.client.session_key()
+    }
+
 }
 
 #[derive(Debug)]

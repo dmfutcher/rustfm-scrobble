@@ -67,6 +67,10 @@ impl LastFmClient {
         self.auth.set_session_key(session_key)
     }
 
+    pub fn session_key(&self) -> Option<String> {
+        self.auth.session_key()
+    }
+
     pub fn send_now_playing(&self,
                             params: &HashMap<String, String>)
                             -> Result<NowPlayingResponse, String> {
