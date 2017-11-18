@@ -23,5 +23,9 @@ pub use models::metadata::{Scrobble, ScrobbleBatch};
 
 pub mod responses {
     pub use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse,
-                                BatchScrobbleResponse, CorrectableString};
+                                BatchScrobbleResponse};
+    
+    pub mod values {
+        pub use models::responses::{CorrectableString, ScrobbleList};
+    }
 }

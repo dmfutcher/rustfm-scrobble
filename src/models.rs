@@ -41,7 +41,9 @@ pub mod responses {
         pub scrobble: ScrobbleResponse,
     }
 
-    #[derive(Deserialize, Debug)]
+    #[derive(Deserialize, Debug, WrappedVec)]
+    #[CollectionName="ScrobbleList"]
+    #[CollectionDerives="Debug, Deserialize"]
     pub struct ScrobbleResponse {
         pub artist: CorrectableString,
         pub album: CorrectableString,
@@ -51,10 +53,9 @@ pub mod responses {
         pub timestamp: String,
     }
 
-    // TODO: Replace Vec<ScrobbleResponse> with a WrappedVec derived named Vec
     #[derive(Debug)]
     pub struct BatchScrobbleResponse {
-        pub scrobbles: Vec<ScrobbleResponse>
+        pub scrobbles: ScrobbleList
     }
 
     #[derive(Deserialize, Debug)]
@@ -64,8 +65,8 @@ pub mod responses {
 
     #[derive(Deserialize, Debug)]
     pub struct BatchScrobbles {
-        #[serde(rename="scrobble", default)]
-        pub scrobbles: Vec<ScrobbleResponse>
+        #[serde(rename="scrobble")]
+        pub scrobbles: ScrobbleList
     }
 
     #[derive(Deserialize, Debug)]
@@ -105,6 +106,7 @@ pub mod metadata {
     #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, WrappedVec)]
     #[CollectionName="ScrobbleBatch"]
     #[CollectionDoc="A batch of Scrobbles to be submitted to Last.fm together."]
+    #[CollectionDerives="Clone, Debug"]
     pub struct Scrobble {
         artist: String,
         track: String,
