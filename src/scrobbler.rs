@@ -67,6 +67,13 @@ impl Scrobbler {
     pub fn scrobble_batch(&self, batch: ScrobbleBatch) -> Result<BatchScrobbleResponse> {
         let mut params = HashMap::new();
 
+        let batch_count = batch.len();
+        if batch_count > 50 {
+            return Err(ScrobblerError::new("Scrobble batch too large (must be 50 or fewer scrobbles)".to_owned()));
+        } else if batch_count <= 0 {
+            return Err(ScrobblerError::new("Scrobble batch is empty".to_owned()));
+        }
+
         for (i, scrobble) in batch.iter().enumerate() {
             let mut scrobble_params = scrobble.as_map();
             scrobble_params.entry("timestamp".to_string()).or_insert(format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
