@@ -38,7 +38,7 @@ pub struct LastFmClient {
 impl LastFmClient {
     pub fn new(api_key: String, api_secret: String) -> LastFmClient {
         let partial_auth = AuthCredentials::new_partial(api_key, api_secret);
-        let http_client = Client::new();
+        let http_client = Client::new().unwrap();
 
         LastFmClient {
             auth: partial_auth,
@@ -146,11 +146,11 @@ impl LastFmClient {
         self.api_request(operation, req_params)
     }
 
-    fn api_request(&self, operation: ApiOperation, params: HashMap<String, String>) -> Result<String, String> {
+    fn api_request(&self, operation: ApiOperation, params: HashMap<String, String>) -> Result<String, String> {            
         match self.send_request(operation, params) {
             Ok(mut resp) => {
                 let status = resp.status();
-                if status != StatusCode::OK {
+                if status != StatusCode::Ok {
                     return Err(format!("Non Success status ({})", status));
                 }
 
@@ -173,8 +173,8 @@ impl LastFmClient {
         req_params.insert("api_sig".to_string(), signature);
 
         self.http_client
-            .post(url)
-            .form(&req_params)
+            .post(url)?
+            .form(&req_params)?
             .send()
     }
 
