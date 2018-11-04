@@ -12,7 +12,8 @@ use models::responses::{AuthResponse, SessionResponse, NowPlayingResponse,
                         BatchScrobbleResponse, BatchScrobbleResponseWrapper};
 
 pub enum ApiOperation {
-    AuthSession,
+    AuthWebSession,
+    AuthMobileSession,
     NowPlaying,
     Scrobble,
 }
@@ -20,7 +21,8 @@ pub enum ApiOperation {
 impl ApiOperation {
     fn to_string(&self) -> String {
         match *self {
-            ApiOperation::AuthSession => "auth.getMobileSession",
+            ApiOperation::AuthWebSession => "auth.getSession",
+            ApiOperation::AuthMobileSession => "auth.getMobileSession",
             ApiOperation::NowPlaying => "track.updateNowPlaying",
             ApiOperation::Scrobble => "track.scrobble",
         }
@@ -48,10 +50,28 @@ impl LastFmClient {
         self.auth.set_user_credentials(username, password);
     }
 
+    pub fn set_user_token(&mut self, token: String) {
+        self.auth.set_user_token(token);
+    }
+
     pub fn authenticate_with_password(&mut self) -> Result<SessionResponse, String> {
         let params = self.auth.get_auth_request_params()?;
 
-        match self.api_request(ApiOperation::AuthSession, params) {
+        match self.api_request(ApiOperation::AuthMobileSession, params) {
+            Ok(body) => {
+                let decoded: AuthResponse = serde_json::from_str(body.as_str()).unwrap();
+                self.auth.set_session_key(decoded.session.clone().key);
+
+                Ok(decoded.session)
+            }
+            Err(msg) => Err(format!("Authentication failed: {}", msg)),
+        }
+    }
+
+    pub fn authenticate_with_token(&mut self) -> Result<SessionResponse, String> {
+        let params = self.auth.get_auth_request_params()?;
+
+        match self.api_request(ApiOperation::AuthWebSession, params) {
             Ok(body) => {
                 let decoded: AuthResponse = serde_json::from_str(body.as_str()).unwrap();
                 self.auth.set_session_key(decoded.session.clone().key);
