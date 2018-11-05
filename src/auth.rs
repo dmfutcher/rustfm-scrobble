@@ -9,8 +9,8 @@ pub struct AuthCredentials {
     api_key: String,
     api_secret: String,
 
-    // Individual user's username & pass
-    user_credentials: Option<UserCredentials>,
+    // Individual user's username & pass, or auth token
+    credentials: Option<Credentials>,
 
     // Long-lasting session key (used once UserCredentials are authenticated)
     session_key: Option<String>,
@@ -22,10 +22,16 @@ struct UserCredentials {
     password: String,
 }
 
+#[derive(Clone)]
+enum Credentials {
+    UserSupplied(UserCredentials),
+    Token(String),
+}
+
 impl UserCredentials {
 
     pub fn can_authenticate(&self) -> bool {
-        !self.username.is_empty() && self.password.is_empty()
+        !self.username.is_empty() && !self.password.is_empty()
     }
 
 }
@@ -35,18 +41,23 @@ impl AuthCredentials {
         AuthCredentials {
             api_key: api_key,
             api_secret: api_secret,
-
-            user_credentials: None,
-
+            credentials: None,
             session_key: None,
         }
     }
 
     pub fn set_user_credentials(&mut self, username: String, password: String) {
-        self.user_credentials = Some(UserCredentials {
+        self.credentials = Some(Credentials::UserSupplied(UserCredentials {
             username: username,
             password: password
-        });
+        }));
+
+        // Invalidate session because we have new credentials
+        self.session_key = None
+    }
+
+     pub fn set_user_token(&mut self, token: String) {
+        self.credentials = Some(Credentials::Token(token));
 
         // Invalidate session because we have new credentials
         self.session_key = None
@@ -66,17 +77,27 @@ impl AuthCredentials {
     }
 
     pub fn get_auth_request_params(&self) -> Result<HashMap<String, String>, String> {
-        let user_credentials = self.user_credentials.clone().ok_or("No user credentials available")?;
+        let credentials = self.credentials.clone().ok_or("No user credentials available")?;
 
-        if !self.api_key.is_empty() && !self.api_secret.is_empty() &&
-            user_credentials.can_authenticate() {
+        if self.api_key.is_empty() || self.api_secret.is_empty() {
             return Err("Invalid authentication parameters".to_string());
         }
 
         let mut params = HashMap::new();
-        params.insert("username".to_string(), user_credentials.username.clone());
-        params.insert("password".to_string(), user_credentials.password.clone());
         params.insert("api_key".to_string(), self.api_key.clone());
+
+        match credentials {
+            Credentials::UserSupplied(user_credentials) => {
+                 if !user_credentials.can_authenticate() {
+                    return Err("Invalid authentication credentials".to_string());
+                }
+                params.insert("username".to_string(), user_credentials.username.clone());
+                params.insert("password".to_string(), user_credentials.password.clone());
+            },
+            Credentials::Token(token) => {
+                params.insert("token".to_string(), token.clone());
+            }
+        }
 
         Ok(params)
     }
