@@ -51,6 +51,7 @@ pub mod responses {
         pub album_artist: CorrectableString,
         pub track: CorrectableString,
         pub timestamp: String,
+        //  TODO: Ignored field here? (#20)
     }
 
     #[derive(Debug)]
@@ -142,6 +143,18 @@ pub mod metadata {
             }
 
             params
+        }
+
+        pub fn artist(&self) -> String {
+            self.artist.clone()
+        }
+
+        pub fn track(&self) -> String {
+            self.track.clone()
+        }
+
+        pub fn album(&self) -> String {
+            self.album.clone()
         }
 
     }
