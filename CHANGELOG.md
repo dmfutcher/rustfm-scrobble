@@ -2,6 +2,7 @@ Version 0.9.1 - 2019-04-25
 ==========================
 
   * Update `reqwest` to v0.9.15
+  * Add Artist, Track & Album getters to `Scrobbler`
 
 Version 0.9.1 - 2017-11-20
 ==========================
