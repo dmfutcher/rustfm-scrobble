@@ -2,7 +2,7 @@ pub mod responses {
 
     use std::fmt;
 
-    use serde;
+    use serde::Deserialize;
     use serde_json as json;
 
     #[derive(Deserialize, Debug)]
@@ -82,7 +82,7 @@ pub mod responses {
         fn deserialize_corrected_field<'de, D>(de: D) -> Result<bool, D::Error>
             where D: serde::Deserializer<'de>
         {
-            let deser_result: json::Value = try!(serde::Deserialize::deserialize(de));
+            let deser_result: json::Value = r#try!(serde::Deserialize::deserialize(de));
             match deser_result {
                 json::Value::String(ref s) if &*s == "1" => Ok(true),
                 json::Value::String(ref s) if &*s == "0" => Ok(false),
@@ -92,7 +92,7 @@ pub mod responses {
     }
 
     impl fmt::Display for CorrectableString {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             write!(f, "{}", self.text)
         }
     }

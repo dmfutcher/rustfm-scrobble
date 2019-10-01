@@ -6,8 +6,8 @@ use reqwest;
 use reqwest::{Client, StatusCode};
 use serde_json;
 
-use auth::AuthCredentials;
-use models::responses::{AuthResponse, SessionResponse, NowPlayingResponse,
+use crate::auth::AuthCredentials;
+use crate::models::responses::{AuthResponse, SessionResponse, NowPlayingResponse,
                         NowPlayingResponseWrapper, ScrobbleResponse, ScrobbleResponseWrapper,
                         BatchScrobbleResponse, BatchScrobbleResponseWrapper};
 

@@ -1,6 +1,6 @@
-use client::LastFmClient;
-use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse, BatchScrobbleResponse};
-use models::metadata::{Scrobble, ScrobbleBatch};
+use crate::client::LastFmClient;
+use crate::models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse, BatchScrobbleResponse};
+use crate::models::metadata::{Scrobble, ScrobbleBatch};
 
 use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
@@ -118,7 +118,7 @@ impl ScrobblerError {
 }
 
 impl fmt::Display for ScrobblerError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.err_msg)
     }
 }
@@ -128,7 +128,7 @@ impl Error for ScrobblerError {
         self.err_msg.as_str()
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn cause(&self) -> Option<&dyn Error> {
         None
     }
 }
