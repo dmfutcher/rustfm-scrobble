@@ -121,7 +121,7 @@ pub mod metadata {
         /// Constructs a new Scrobble instance, representing a music track
         /// played in the past.
         pub fn new(artist: String, track: String, album: String) -> Scrobble {
-            Scrobble{ artist: artist, track: track, album: album, timestamp: None }
+            Scrobble{ artist, track, album, timestamp: None }
         }
 
         pub fn with_timestamp(&mut self, timestamp: u64) -> &mut Scrobble {
