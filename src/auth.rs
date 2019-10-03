@@ -37,38 +37,38 @@ impl UserCredentials {
 }
 
 impl AuthCredentials {
-    pub fn new_partial(api_key: String, api_secret: String) -> AuthCredentials {
+    pub fn new_partial(api_key: &str, api_secret: &str) -> AuthCredentials {
         AuthCredentials {
-            api_key,
-            api_secret,
+            api_key: api_key.to_owned(),
+            api_secret: api_secret.to_owned(),
             credentials: None,
             session_key: None,
         }
     }
 
-    pub fn set_user_credentials(&mut self, username: String, password: String) {
+    pub fn set_user_credentials(&mut self, username: &str, password: &str) {
         self.credentials = Some(Credentials::UserSupplied(UserCredentials {
-            username,
-            password
+            username: username.to_owned(),
+            password: password.to_owned(),
         }));
 
         // Invalidate session because we have new credentials
         self.session_key = None
     }
 
-     pub fn set_user_token(&mut self, token: String) {
-        self.credentials = Some(Credentials::Token(token));
+     pub fn set_user_token(&mut self, token: &str) {
+        self.credentials = Some(Credentials::Token(token.to_owned()));
 
         // Invalidate session because we have new credentials
         self.session_key = None
     }
 
-    pub fn set_session_key(&mut self, key: String) {
-        self.session_key = Some(key);
+    pub fn set_session_key(&mut self, key: &str) {
+        self.session_key = Some(key.to_owned());
     }
 
-    pub fn session_key(&self) -> Option<String> {
-        self.session_key.clone()
+    pub fn session_key(&self) -> Option<&str> {
+        self.session_key.as_ref().map(std::ops::Deref::deref)
     }
 
     // Returns true if we have valid authentication parameters AND a session token
@@ -77,7 +77,7 @@ impl AuthCredentials {
     }
 
     pub fn get_auth_request_params(&self) -> Result<HashMap<String, String>, String> {
-        let credentials = self.credentials.clone().ok_or("No user credentials available")?;
+        let credentials = self.credentials.as_ref().ok_or("No user credentials available")?;
 
         if self.api_key.is_empty() || self.api_secret.is_empty() {
             return Err("Invalid authentication parameters".to_string());
@@ -88,7 +88,7 @@ impl AuthCredentials {
 
         match credentials {
             Credentials::UserSupplied(user_credentials) => {
-                 if !user_credentials.can_authenticate() {
+                if !user_credentials.can_authenticate() {
                     return Err("Invalid authentication credentials".to_string());
                 }
                 params.insert("username".to_string(), user_credentials.username.clone());

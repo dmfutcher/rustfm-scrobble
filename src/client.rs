@@ -37,7 +37,7 @@ pub struct LastFmClient {
 }
 
 impl LastFmClient {
-    pub fn new(api_key: String, api_secret: String) -> LastFmClient {
+    pub fn new(api_key: &str, api_secret: &str) -> LastFmClient {
         let partial_auth = AuthCredentials::new_partial(api_key, api_secret);
         let http_client = Client::new();
 
@@ -47,11 +47,11 @@ impl LastFmClient {
         }
     }
 
-    pub fn set_user_credentials(&mut self, username: String, password: String) {
+    pub fn set_user_credentials(&mut self, username: &str, password: &str) {
         self.auth.set_user_credentials(username, password);
     }
 
-    pub fn set_user_token(&mut self, token: String) {
+    pub fn set_user_token(&mut self, token: &str) {
         self.auth.set_user_token(token);
     }
 
@@ -61,7 +61,7 @@ impl LastFmClient {
         match self.api_request(ApiOperation::AuthMobileSession, params) {
             Ok(body) => {
                 let decoded: AuthResponse = serde_json::from_str(body.as_str()).unwrap();
-                self.auth.set_session_key(decoded.session.clone().key);
+                self.auth.set_session_key(&decoded.session.key);
 
                 Ok(decoded.session)
             }
@@ -75,7 +75,7 @@ impl LastFmClient {
         match self.api_request(ApiOperation::AuthWebSession, params) {
             Ok(body) => {
                 let decoded: AuthResponse = serde_json::from_str(body.as_str()).unwrap();
-                self.auth.set_session_key(decoded.session.clone().key);
+                self.auth.set_session_key(&decoded.session.key);
 
                 Ok(decoded.session)
             }
@@ -83,12 +83,12 @@ impl LastFmClient {
         }
     }
 
-    pub fn authenticate_with_session_key(&mut self, session_key: String) {
+    pub fn authenticate_with_session_key(&mut self, session_key: &str) {
         // TODO: How to verify session key at this point?
         self.auth.set_session_key(session_key)
     }
 
-    pub fn session_key(&self) -> Option<String> {
+    pub fn session_key(&self) -> Option<&str> {
         self.auth.session_key()
     }
 
@@ -165,17 +165,16 @@ impl LastFmClient {
         }
     }
 
-    fn send_request(&self, operation: ApiOperation, params: HashMap<String, String>) -> Result<reqwest::Response, reqwest::Error> {
+    fn send_request(&self, operation: ApiOperation, mut params: HashMap<String, String>) -> Result<reqwest::Response, reqwest::Error> {
         let url = "https://ws.audioscrobbler.com/2.0/?format=json";
         let signature = self.auth.get_signature(operation.to_string(), &params);
 
-        let mut req_params = params.clone();
-        req_params.insert("method".to_string(), operation.to_string());
-        req_params.insert("api_sig".to_string(), signature);
+        params.insert("method".to_string(), operation.to_string());
+        params.insert("api_sig".to_string(), signature);
 
         self.http_client
             .post(url)
-            .form(&req_params)
+            .form(&params)
             .send()
     }
 
