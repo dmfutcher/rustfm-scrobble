@@ -12,7 +12,7 @@ fn main() {
 
     let mut scrobbler = Scrobbler::new(api_key, api_secret);
 
-    match scrobbler.authenticate(username, password) {
+    match scrobbler.authenticate_with_password(username, password) {
         Ok(_) => { println!("Authenticated!"); }
         Err(e) => { println!("{}", e); }
     };
