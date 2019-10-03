@@ -39,8 +39,8 @@ impl UserCredentials {
 impl AuthCredentials {
     pub fn new_partial(api_key: String, api_secret: String) -> AuthCredentials {
         AuthCredentials {
-            api_key: api_key,
-            api_secret: api_secret,
+            api_key,
+            api_secret,
             credentials: None,
             session_key: None,
         }
@@ -48,8 +48,8 @@ impl AuthCredentials {
 
     pub fn set_user_credentials(&mut self, username: String, password: String) {
         self.credentials = Some(Credentials::UserSupplied(UserCredentials {
-            username: username,
-            password: password
+            username,
+            password
         }));
 
         // Invalidate session because we have new credentials

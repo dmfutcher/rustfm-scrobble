@@ -2,14 +2,6 @@
 //!
 //! Client for the Last.fm Scrobble API v2.0.
 
-extern crate reqwest;
-extern crate crypto;
-
-#[macro_use]
-extern crate serde_derive;
-extern crate serde_json;
-extern crate serde;
-
 #[macro_use]
 extern crate wrapped_vec;
 
@@ -18,14 +10,14 @@ mod client;
 mod auth;
 mod models;
 
-pub use scrobbler::{Scrobbler, ScrobblerError};
-pub use models::metadata::{Scrobble, ScrobbleBatch};
+pub use crate::scrobbler::{Scrobbler, ScrobblerError};
+pub use crate::models::metadata::{Scrobble, ScrobbleBatch};
 
 pub mod responses {
-    pub use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse,
+    pub use crate::models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse,
                                 BatchScrobbleResponse};
-    
+
     pub mod values {
-        pub use models::responses::{CorrectableString, ScrobbleList};
+        pub use crate::models::responses::{CorrectableString, ScrobbleList};
     }
 }

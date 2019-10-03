@@ -2,12 +2,13 @@
 
 use std::collections::HashMap;
 use std::io::Read;
+use std::fmt;
 use reqwest;
 use reqwest::{Client, StatusCode};
 use serde_json;
 
-use auth::AuthCredentials;
-use models::responses::{AuthResponse, SessionResponse, NowPlayingResponse,
+use crate::auth::AuthCredentials;
+use crate::models::responses::{AuthResponse, SessionResponse, NowPlayingResponse,
                         NowPlayingResponseWrapper, ScrobbleResponse, ScrobbleResponseWrapper,
                         BatchScrobbleResponse, BatchScrobbleResponseWrapper};
 
@@ -18,15 +19,15 @@ pub enum ApiOperation {
     Scrobble,
 }
 
-impl ApiOperation {
-    fn to_string(&self) -> String {
-        match *self {
+impl fmt::Display for ApiOperation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let str = match *self {
             ApiOperation::AuthWebSession => "auth.getSession",
             ApiOperation::AuthMobileSession => "auth.getMobileSession",
             ApiOperation::NowPlaying => "track.updateNowPlaying",
             ApiOperation::Scrobble => "track.scrobble",
-        }
-        .to_string()
+        };
+        write!(f, "{}", str)
     }
 }
 
@@ -42,7 +43,7 @@ impl LastFmClient {
 
         LastFmClient {
             auth: partial_auth,
-            http_client: http_client,
+            http_client,
         }
     }
 

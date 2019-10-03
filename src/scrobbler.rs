@@ -1,6 +1,6 @@
-use client::LastFmClient;
-use models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse, BatchScrobbleResponse};
-use models::metadata::{Scrobble, ScrobbleBatch};
+use crate::client::LastFmClient;
+use crate::models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse, BatchScrobbleResponse};
+use crate::models::metadata::{Scrobble, ScrobbleBatch};
 
 use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
@@ -20,7 +20,7 @@ impl Scrobbler {
     pub fn new(api_key: String, api_secret: String) -> Scrobbler {
         let client = LastFmClient::new(api_key, api_secret);
 
-        Scrobbler { client: client }
+        Scrobbler { client }
     }
 
     /// Uses the given username and password (for the user to log scrobbles against), plus
@@ -64,7 +64,7 @@ impl Scrobbler {
     pub fn scrobble(&self, scrobble: Scrobble) -> Result<ScrobbleResponse> {
         let mut params = scrobble.as_map();
 
-        params.entry("timestamp".to_string()).or_insert(format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
+        params.entry("timestamp".to_string()).or_insert_with(|| format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 
         self.client
             .send_scrobble(&params)
@@ -77,13 +77,13 @@ impl Scrobbler {
         let batch_count = batch.len();
         if batch_count > 50 {
             return Err(ScrobblerError::new("Scrobble batch too large (must be 50 or fewer scrobbles)".to_owned()));
-        } else if batch_count <= 0 {
+        } else if batch_count == 0 {
             return Err(ScrobblerError::new("Scrobble batch is empty".to_owned()));
         }
 
         for (i, scrobble) in batch.iter().enumerate() {
             let mut scrobble_params = scrobble.as_map();
-            scrobble_params.entry("timestamp".to_string()).or_insert(format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
+            scrobble_params.entry("timestamp".to_string()).or_insert_with(|| format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 
             for (key, val) in scrobble_params.iter() {
                 // batched parameters need array notation suffix ie.
@@ -113,12 +113,12 @@ pub struct ScrobblerError {
 
 impl ScrobblerError {
     pub fn new(err_msg: String) -> ScrobblerError {
-        ScrobblerError { err_msg: err_msg }
+        ScrobblerError { err_msg }
     }
 }
 
 impl fmt::Display for ScrobblerError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.err_msg)
     }
 }
@@ -128,7 +128,7 @@ impl Error for ScrobblerError {
         self.err_msg.as_str()
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn cause(&self) -> Option<&dyn Error> {
         None
     }
 }
