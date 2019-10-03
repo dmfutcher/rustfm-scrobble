@@ -1,16 +1,17 @@
 // Last.fm scrobble API 2.0 client
 
-use std::collections::HashMap;
-use std::io::Read;
-use std::fmt;
 use reqwest;
 use reqwest::{Client, StatusCode};
 use serde_json;
+use std::collections::HashMap;
+use std::fmt;
+use std::io::Read;
 
 use crate::auth::AuthCredentials;
-use crate::models::responses::{AuthResponse, SessionResponse, NowPlayingResponse,
-                        NowPlayingResponseWrapper, ScrobbleResponse, ScrobbleResponseWrapper,
-                        BatchScrobbleResponse, BatchScrobbleResponseWrapper};
+use crate::models::responses::{
+    AuthResponse, BatchScrobbleResponse, BatchScrobbleResponseWrapper, NowPlayingResponse,
+    NowPlayingResponseWrapper, ScrobbleResponse, ScrobbleResponseWrapper, SessionResponse,
+};
 
 pub enum ApiOperation {
     AuthWebSession,
@@ -92,22 +93,24 @@ impl LastFmClient {
         self.auth.session_key()
     }
 
-    pub fn send_now_playing(&self,
-                            params: &HashMap<String, String>)
-                            -> Result<NowPlayingResponse, String> {
+    pub fn send_now_playing(
+        &self,
+        params: &HashMap<String, String>,
+    ) -> Result<NowPlayingResponse, String> {
         match self.send_authenticated_request(ApiOperation::NowPlaying, params) {
             Ok(body) => {
-                let decoded: NowPlayingResponseWrapper = serde_json::from_str(body.as_str())
-                    .unwrap();
+                let decoded: NowPlayingResponseWrapper =
+                    serde_json::from_str(body.as_str()).unwrap();
                 Ok(decoded.nowplaying)
             }
             Err(msg) => Err(format!("Now playing request failed: {}", msg)),
         }
     }
 
-    pub fn send_scrobble(&self,
-                         params: &HashMap<String, String>)
-                         -> Result<ScrobbleResponse, String> {
+    pub fn send_scrobble(
+        &self,
+        params: &HashMap<String, String>,
+    ) -> Result<ScrobbleResponse, String> {
         match self.send_authenticated_request(ApiOperation::Scrobble, params) {
             Ok(body) => {
                 let decoded: ScrobbleResponseWrapper = serde_json::from_str(body.as_str()).unwrap();
@@ -117,24 +120,27 @@ impl LastFmClient {
         }
     }
 
-    pub fn send_batch_scrobbles(&self,
-                         params: &HashMap<String, String>)
-                         -> Result<BatchScrobbleResponse, String> {
+    pub fn send_batch_scrobbles(
+        &self,
+        params: &HashMap<String, String>,
+    ) -> Result<BatchScrobbleResponse, String> {
         match self.send_authenticated_request(ApiOperation::Scrobble, params) {
             Ok(body) => {
-                let wrapper: BatchScrobbleResponseWrapper = serde_json::from_str(body.as_str()).unwrap();
+                let wrapper: BatchScrobbleResponseWrapper =
+                    serde_json::from_str(body.as_str()).unwrap();
                 Ok(BatchScrobbleResponse {
-                    scrobbles: wrapper.scrobbles.scrobbles
+                    scrobbles: wrapper.scrobbles.scrobbles,
                 })
             }
             Err(msg) => Err(format!("Batch scrobble request failed: {}", msg)),
         }
     }
 
-    pub fn send_authenticated_request(&self,
-                                      operation: ApiOperation,
-                                      params: &HashMap<String, String>)
-                                      -> Result<String, String> {
+    pub fn send_authenticated_request(
+        &self,
+        operation: ApiOperation,
+        params: &HashMap<String, String>,
+    ) -> Result<String, String> {
         if !self.auth.is_authenticated() {
             return Err("Not authenticated".to_string());
         }
@@ -147,7 +153,11 @@ impl LastFmClient {
         self.api_request(operation, req_params)
     }
 
-    fn api_request(&self, operation: ApiOperation, params: HashMap<String, String>) -> Result<String, String> {            
+    fn api_request(
+        &self,
+        operation: ApiOperation,
+        params: HashMap<String, String>,
+    ) -> Result<String, String> {
         match self.send_request(operation, params) {
             Ok(mut resp) => {
                 let status = resp.status();
@@ -158,14 +168,18 @@ impl LastFmClient {
                 let mut resp_body = String::new();
                 match resp.read_to_string(&mut resp_body) {
                     Ok(_) => Ok(resp_body),
-                    Err(_) => Err("Failed to read response body".to_string())
+                    Err(_) => Err("Failed to read response body".to_string()),
                 }
-            },
-            Err(msg) => Err(format!("{}", msg))
+            }
+            Err(msg) => Err(format!("{}", msg)),
         }
     }
 
-    fn send_request(&self, operation: ApiOperation, params: HashMap<String, String>) -> Result<reqwest::Response, reqwest::Error> {
+    fn send_request(
+        &self,
+        operation: ApiOperation,
+        params: HashMap<String, String>,
+    ) -> Result<reqwest::Response, reqwest::Error> {
         let url = "https://ws.audioscrobbler.com/2.0/?format=json";
         let signature = self.auth.get_signature(operation.to_string(), &params);
 
@@ -173,10 +187,6 @@ impl LastFmClient {
         req_params.insert("method".to_string(), operation.to_string());
         req_params.insert("api_sig".to_string(), signature);
 
-        self.http_client
-            .post(url)
-            .form(&req_params)
-            .send()
+        self.http_client.post(url).form(&req_params).send()
     }
-
 }

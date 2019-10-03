@@ -5,17 +5,18 @@
 #[macro_use]
 extern crate wrapped_vec;
 
-mod scrobbler;
-mod client;
 mod auth;
+mod client;
 mod models;
+mod scrobbler;
 
-pub use crate::scrobbler::{Scrobbler, ScrobblerError};
 pub use crate::models::metadata::{Scrobble, ScrobbleBatch};
+pub use crate::scrobbler::{Scrobbler, ScrobblerError};
 
 pub mod responses {
-    pub use crate::models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse,
-                                BatchScrobbleResponse};
+    pub use crate::models::responses::{
+        BatchScrobbleResponse, NowPlayingResponse, ScrobbleResponse, SessionResponse,
+    };
 
     pub mod values {
         pub use crate::models::responses::{CorrectableString, ScrobbleList};

@@ -1,13 +1,13 @@
-use rustfm_scrobble::{Scrobbler, Scrobble};
+use rustfm_scrobble::{Scrobble, Scrobbler};
 
 // Example rustfm-scrobble client showing authentication, now playing and
 // scrobbling.
 // Replace credential values with your own to test.
 
 macro_rules! scrobble {
-    ($artist:expr, $track:expr, $album:expr) => (
+    ($artist:expr, $track:expr, $album:expr) => {
         Scrobble::new($artist.to_string(), $track.to_string(), $album.to_string())
-    )
+    };
 }
 
 fn main() {
@@ -19,25 +19,41 @@ fn main() {
     let mut scrobbler = Scrobbler::new(api_key, api_secret);
 
     match scrobbler.authenticate(username, password) {
-        Ok(_) => { println!("Authenticated!"); }
-        Err(e) => { println!("{}", e); }
+        Ok(_) => {
+            println!("Authenticated!");
+        }
+        Err(e) => {
+            println!("{}", e);
+        }
     };
 
     let track_one = scrobble!("Los Campesinos!", "As Lucerne / The Low", "No Blues");
     match scrobbler.now_playing(track_one) {
-        Ok(_) => { println!("Sent now playing! "); }
-        Err(e) => { println!("{}", e); }
+        Ok(_) => {
+            println!("Sent now playing! ");
+        }
+        Err(e) => {
+            println!("{}", e);
+        }
     }
 
     let track_two = scrobble!("Los Campesinos!", "The Time Before the Last", "No Blues");
     match scrobbler.scrobble(track_two) {
-        Ok(_) => { println!("Sent scrobble!"); }
-        Err(e) => { println!("{}", e); }
+        Ok(_) => {
+            println!("Sent scrobble!");
+        }
+        Err(e) => {
+            println!("{}", e);
+        }
     }
 
     let track_three = scrobble!("Los Campesinos!", "Selling Rope", "No Blues");
     match scrobbler.now_playing(track_three) {
-        Ok(_) => { println!("Sent now playing! "); }
-        Err(e) => { println!("{}", e); }
+        Ok(_) => {
+            println!("Sent now playing! ");
+        }
+        Err(e) => {
+            println!("{}", e);
+        }
     }
 }
