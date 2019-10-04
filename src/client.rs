@@ -7,6 +7,9 @@ use std::collections::HashMap;
 use std::fmt;
 use std::io::Read;
 
+#[cfg(test)]
+use mockito;
+
 use crate::auth::AuthCredentials;
 use crate::models::responses::{
     AuthResponse, BatchScrobbleResponse, BatchScrobbleResponseWrapper, NowPlayingResponse,
@@ -182,7 +185,11 @@ impl LastFmClient {
         operation: ApiOperation,
         mut params: HashMap<String, String>,
     ) -> Result<reqwest::Response, reqwest::Error> {
+        #[cfg(not(test))]
         let url = "https://ws.audioscrobbler.com/2.0/?format=json";
+        #[cfg(test)]
+        let url = &mockito::server_url();
+
         let signature = self.auth.get_signature(operation.to_string(), &params);
 
         params.insert("method".to_string(), operation.to_string());
