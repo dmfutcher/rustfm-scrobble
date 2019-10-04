@@ -106,7 +106,10 @@ impl AuthCredentials {
     pub fn get_request_params(&self) -> HashMap<String, String> {
         let mut params = HashMap::new();
         params.insert("api_key".to_string(), self.api_key.clone());
-        params.insert("sk".to_string(), self.session_key.clone().unwrap());
+        params.insert(
+            "sk".to_string(),
+            self.session_key.clone().unwrap_or_default(),
+        );
 
         params
     }
