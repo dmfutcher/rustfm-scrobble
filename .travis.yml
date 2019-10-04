@@ -6,3 +6,21 @@ rust:
 matrix:
   allow_failures:
     - rust: nightly
+
+env:
+  global:
+    - RUST_BACKTRACE=1
+
+install:
+  - |
+    if [ "$TRAVIS_RUST_VERSION" == stable ]; then
+      rustup component add rustfmt
+    fi
+
+script:
+  - |
+    if [ "$TRAVIS_RUST_VERSION" == stable ]; then
+      cargo fmt --all -- --check
+    fi
+  - cargo build --verbose
+  - cargo test --no-fail-fast -- --nocapture

@@ -1,8 +1,8 @@
 // Authentication utilities for Last.fm Scrobble API 2.0
 use std::collections::HashMap;
 
-use crypto::md5::Md5;
 use crypto::digest::Digest;
+use crypto::md5::Md5;
 
 pub struct AuthCredentials {
     // Application specific key & secret
@@ -29,11 +29,9 @@ enum Credentials {
 }
 
 impl UserCredentials {
-
     pub fn can_authenticate(&self) -> bool {
         !self.username.is_empty() && !self.password.is_empty()
     }
-
 }
 
 impl AuthCredentials {
@@ -77,7 +75,10 @@ impl AuthCredentials {
     }
 
     pub fn get_auth_request_params(&self) -> Result<HashMap<String, String>, String> {
-        let credentials = self.credentials.as_ref().ok_or("No user credentials available")?;
+        let credentials = self
+            .credentials
+            .as_ref()
+            .ok_or("No user credentials available")?;
 
         if self.api_key.is_empty() || self.api_secret.is_empty() {
             return Err("Invalid authentication parameters".to_string());
@@ -93,7 +94,7 @@ impl AuthCredentials {
                 }
                 params.insert("username".to_string(), user_credentials.username.clone());
                 params.insert("password".to_string(), user_credentials.password.clone());
-            },
+            }
             Credentials::Token(token) => {
                 params.insert("token".to_string(), token.clone());
             }

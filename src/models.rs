@@ -26,7 +26,7 @@ pub mod responses {
     pub struct NowPlayingResponse {
         pub artist: CorrectableString,
         pub album: CorrectableString,
-        #[serde(rename="albumArtist")]
+        #[serde(rename = "albumArtist")]
         pub album_artist: CorrectableString,
         pub track: CorrectableString,
     }
@@ -42,12 +42,12 @@ pub mod responses {
     }
 
     #[derive(Deserialize, Debug, WrappedVec)]
-    #[CollectionName="ScrobbleList"]
-    #[CollectionDerives="Debug, Deserialize"]
+    #[CollectionName = "ScrobbleList"]
+    #[CollectionDerives = "Debug, Deserialize"]
     pub struct ScrobbleResponse {
         pub artist: CorrectableString,
         pub album: CorrectableString,
-        #[serde(rename="albumArtist")]
+        #[serde(rename = "albumArtist")]
         pub album_artist: CorrectableString,
         pub track: CorrectableString,
         pub timestamp: String,
@@ -56,7 +56,7 @@ pub mod responses {
 
     #[derive(Debug)]
     pub struct BatchScrobbleResponse {
-        pub scrobbles: ScrobbleList
+        pub scrobbles: ScrobbleList,
     }
 
     #[derive(Deserialize, Debug)]
@@ -66,21 +66,22 @@ pub mod responses {
 
     #[derive(Deserialize, Debug)]
     pub struct BatchScrobbles {
-        #[serde(rename="scrobble")]
-        pub scrobbles: ScrobbleList
+        #[serde(rename = "scrobble")]
+        pub scrobbles: ScrobbleList,
     }
 
     #[derive(Deserialize, Debug)]
     pub struct CorrectableString {
-        #[serde(deserialize_with="CorrectableString::deserialize_corrected_field")]
+        #[serde(deserialize_with = "CorrectableString::deserialize_corrected_field")]
         pub corrected: bool,
-        #[serde(rename="#text", default)]
+        #[serde(rename = "#text", default)]
         pub text: String,
     }
 
     impl CorrectableString {
         fn deserialize_corrected_field<'de, D>(de: D) -> Result<bool, D::Error>
-            where D: serde::Deserializer<'de>
+        where
+            D: serde::Deserializer<'de>,
         {
             let deser_result: json::Value = r#try!(serde::Deserialize::deserialize(de));
             match deser_result {
@@ -96,7 +97,6 @@ pub mod responses {
             write!(f, "{}", self.text)
         }
     }
-
 }
 
 pub mod metadata {
@@ -105,19 +105,18 @@ pub mod metadata {
 
     /// Repesents a single track play (aka a "scrobble")
     #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, WrappedVec)]
-    #[CollectionName="ScrobbleBatch"]
-    #[CollectionDoc="A batch of Scrobbles to be submitted to Last.fm together."]
-    #[CollectionDerives="Clone, Debug"]
+    #[CollectionName = "ScrobbleBatch"]
+    #[CollectionDoc = "A batch of Scrobbles to be submitted to Last.fm together."]
+    #[CollectionDerives = "Clone, Debug"]
     pub struct Scrobble {
         artist: String,
         track: String,
         album: String,
 
-        timestamp: Option<u64>
+        timestamp: Option<u64>,
     }
 
     impl Scrobble {
-
         /// Constructs a new Scrobble instance, representing a music track
         /// played in the past.
         pub fn new(artist: &str, track: &str, album: &str) -> Scrobble {
@@ -161,7 +160,5 @@ pub mod metadata {
         pub fn album(&self) -> &str {
             &self.album
         }
-
     }
-
 }

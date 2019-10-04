@@ -1,12 +1,14 @@
 use crate::client::LastFmClient;
-use crate::models::responses::{SessionResponse, NowPlayingResponse, ScrobbleResponse, BatchScrobbleResponse};
 use crate::models::metadata::{Scrobble, ScrobbleBatch};
+use crate::models::responses::{
+    BatchScrobbleResponse, NowPlayingResponse, ScrobbleResponse, SessionResponse,
+};
 
 use std::collections::HashMap;
-use std::time::UNIX_EPOCH;
 use std::error::Error;
 use std::fmt;
 use std::result;
+use std::time::UNIX_EPOCH;
 
 type Result<T> = result::Result<T, ScrobblerError>;
 
@@ -64,7 +66,9 @@ impl Scrobbler {
     pub fn scrobble(&self, scrobble: Scrobble) -> Result<ScrobbleResponse> {
         let mut params = scrobble.as_map();
 
-        params.entry("timestamp".to_string()).or_insert_with(|| format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
+        params
+            .entry("timestamp".to_string())
+            .or_insert_with(|| format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 
         self.client
             .send_scrobble(&params)
@@ -76,14 +80,18 @@ impl Scrobbler {
 
         let batch_count = batch.len();
         if batch_count > 50 {
-            return Err(ScrobblerError::new("Scrobble batch too large (must be 50 or fewer scrobbles)".to_owned()));
+            return Err(ScrobblerError::new(
+                "Scrobble batch too large (must be 50 or fewer scrobbles)".to_owned(),
+            ));
         } else if batch_count == 0 {
             return Err(ScrobblerError::new("Scrobble batch is empty".to_owned()));
         }
 
         for (i, scrobble) in batch.iter().enumerate() {
             let mut scrobble_params = scrobble.as_map();
-            scrobble_params.entry("timestamp".to_string()).or_insert_with(|| format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
+            scrobble_params
+                .entry("timestamp".to_string())
+                .or_insert_with(|| format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
 
             for (key, val) in scrobble_params.iter() {
                 // batched parameters need array notation suffix ie.
@@ -103,7 +111,6 @@ impl Scrobbler {
     pub fn session_key(&self) -> Option<&str> {
         self.client.session_key()
     }
-
 }
 
 #[derive(Debug)]

@@ -1,16 +1,17 @@
 // Last.fm scrobble API 2.0 client
 
-use std::collections::HashMap;
-use std::io::Read;
-use std::fmt;
 use reqwest;
 use reqwest::{Client, StatusCode};
 use serde_json;
+use std::collections::HashMap;
+use std::fmt;
+use std::io::Read;
 
 use crate::auth::AuthCredentials;
-use crate::models::responses::{AuthResponse, SessionResponse, NowPlayingResponse,
-                        NowPlayingResponseWrapper, ScrobbleResponse, ScrobbleResponseWrapper,
-                        BatchScrobbleResponse, BatchScrobbleResponseWrapper};
+use crate::models::responses::{
+    AuthResponse, BatchScrobbleResponse, BatchScrobbleResponseWrapper, NowPlayingResponse,
+    NowPlayingResponseWrapper, ScrobbleResponse, ScrobbleResponseWrapper, SessionResponse,
+};
 
 pub enum ApiOperation {
     AuthWebSession,
@@ -130,10 +131,11 @@ impl LastFmClient {
         })
     }
 
-    pub fn send_authenticated_request(&self,
-                                      operation: ApiOperation,
-                                      params: &HashMap<String, String>)
-                                      -> Result<String, String> {
+    pub fn send_authenticated_request(
+        &self,
+        operation: ApiOperation,
+        params: &HashMap<String, String>,
+    ) -> Result<String, String> {
         if !self.auth.is_authenticated() {
             return Err("Not authenticated".to_string());
         }
@@ -174,5 +176,4 @@ impl LastFmClient {
             .form(&params)
             .send()
     }
-
 }
