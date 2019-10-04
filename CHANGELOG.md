@@ -1,8 +1,17 @@
-Version 0.9.1 - 2019-04-25
+Version 1.0.0 - 2019-10-??
+==========================
+
+  * Simpler API interface (&str over String etc.) & internal code improvements (@andy128k, #30)
+  * Use Rust Edition 2018 (@AnderEnder, #28)
+  * Use rustfmt to format code (@AnderEnder, #29)
+
+
+Version 0.9.2 - 2019-04-25
 ==========================
 
   * Update `reqwest` to v0.9.15
   * Add Artist, Track & Album getters to `Scrobbler`
+
 
 Version 0.9.1 - 2017-11-20
 ==========================
@@ -16,6 +25,7 @@ Version 0.9.1 - 2017-11-20
     `responses::values` package)
     * Use wrapped-vec derived `ScrobbleList` instead of `Vec<ScrobbleResponse>` in various response 
       structs
+
 
 Version 0.9.0 - 2017-11-16
 ==========================
