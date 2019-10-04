@@ -120,7 +120,7 @@ pub mod metadata {
         /// Constructs a new Scrobble instance, representing a music track
         /// played in the past.
         pub fn new(artist: &str, track: &str, album: &str) -> Scrobble {
-            Scrobble{
+            Scrobble {
                 artist: artist.to_owned(),
                 track: track.to_owned(),
                 album: album.to_owned(),

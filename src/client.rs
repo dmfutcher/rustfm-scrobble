@@ -59,7 +59,8 @@ impl LastFmClient {
     pub fn authenticate_with_password(&mut self) -> Result<SessionResponse, String> {
         let params = self.auth.get_auth_request_params()?;
 
-        let body = self.api_request(ApiOperation::AuthMobileSession, params)
+        let body = self
+            .api_request(ApiOperation::AuthMobileSession, params)
             .map_err(|msg| format!("Authentication failed: {}", msg))?;
 
         let decoded: AuthResponse = serde_json::from_str(body.as_str())
@@ -73,7 +74,8 @@ impl LastFmClient {
     pub fn authenticate_with_token(&mut self) -> Result<SessionResponse, String> {
         let params = self.auth.get_auth_request_params()?;
 
-        let body = self.api_request(ApiOperation::AuthWebSession, params)
+        let body = self
+            .api_request(ApiOperation::AuthWebSession, params)
             .map_err(|msg| format!("Authentication failed: {}", msg))?;
 
         let decoded: AuthResponse = serde_json::from_str(body.as_str())
@@ -93,10 +95,12 @@ impl LastFmClient {
         self.auth.session_key()
     }
 
-    pub fn send_now_playing(&self,
-                            params: &HashMap<String, String>)
-                            -> Result<NowPlayingResponse, String> {
-        let body = self.send_authenticated_request(ApiOperation::NowPlaying, params)
+    pub fn send_now_playing(
+        &self,
+        params: &HashMap<String, String>,
+    ) -> Result<NowPlayingResponse, String> {
+        let body = self
+            .send_authenticated_request(ApiOperation::NowPlaying, params)
             .map_err(|msg| format!("Now playing request failed: {}", msg))?;
 
         let decoded: NowPlayingResponseWrapper = serde_json::from_str(body.as_str())
@@ -105,10 +109,12 @@ impl LastFmClient {
         Ok(decoded.nowplaying)
     }
 
-    pub fn send_scrobble(&self,
-                         params: &HashMap<String, String>)
-                         -> Result<ScrobbleResponse, String> {
-        let body = self.send_authenticated_request(ApiOperation::Scrobble, params)
+    pub fn send_scrobble(
+        &self,
+        params: &HashMap<String, String>,
+    ) -> Result<ScrobbleResponse, String> {
+        let body = self
+            .send_authenticated_request(ApiOperation::Scrobble, params)
             .map_err(|msg| format!("Scrobble request failed: {}", msg))?;
 
         let decoded: ScrobbleResponseWrapper = serde_json::from_str(body.as_str())
@@ -117,17 +123,19 @@ impl LastFmClient {
         Ok(decoded.scrobbles.scrobble)
     }
 
-    pub fn send_batch_scrobbles(&self,
-                         params: &HashMap<String, String>)
-                         -> Result<BatchScrobbleResponse, String> {
-        let body = self.send_authenticated_request(ApiOperation::Scrobble, params)
+    pub fn send_batch_scrobbles(
+        &self,
+        params: &HashMap<String, String>,
+    ) -> Result<BatchScrobbleResponse, String> {
+        let body = self
+            .send_authenticated_request(ApiOperation::Scrobble, params)
             .map_err(|msg| format!("Batch scrobble request failed: {}", msg))?;
 
         let wrapper: BatchScrobbleResponseWrapper = serde_json::from_str(body.as_str())
             .map_err(|msg| format!("Batch scrobble request failed: {}", msg))?;
 
         Ok(BatchScrobbleResponse {
-            scrobbles: wrapper.scrobbles.scrobbles
+            scrobbles: wrapper.scrobbles.scrobbles,
         })
     }
 
@@ -148,8 +156,13 @@ impl LastFmClient {
         self.api_request(operation, req_params)
     }
 
-    fn api_request(&self, operation: ApiOperation, params: HashMap<String, String>) -> Result<String, String> {            
-        let mut resp = self.send_request(operation, params)
+    fn api_request(
+        &self,
+        operation: ApiOperation,
+        params: HashMap<String, String>,
+    ) -> Result<String, String> {
+        let mut resp = self
+            .send_request(operation, params)
             .map_err(|err| err.to_string())?;
 
         let status = resp.status();
@@ -164,16 +177,17 @@ impl LastFmClient {
         Ok(resp_body)
     }
 
-    fn send_request(&self, operation: ApiOperation, mut params: HashMap<String, String>) -> Result<reqwest::Response, reqwest::Error> {
+    fn send_request(
+        &self,
+        operation: ApiOperation,
+        mut params: HashMap<String, String>,
+    ) -> Result<reqwest::Response, reqwest::Error> {
         let url = "https://ws.audioscrobbler.com/2.0/?format=json";
         let signature = self.auth.get_signature(operation.to_string(), &params);
 
         params.insert("method".to_string(), operation.to_string());
         params.insert("api_sig".to_string(), signature);
 
-        self.http_client
-            .post(url)
-            .form(&params)
-            .send()
+        self.http_client.post(url).form(&params).send()
     }
 }

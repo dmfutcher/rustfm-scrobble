@@ -54,7 +54,7 @@ impl AuthCredentials {
         self.session_key = None
     }
 
-     pub fn set_user_token(&mut self, token: &str) {
+    pub fn set_user_token(&mut self, token: &str) {
         self.credentials = Some(Credentials::Token(token.to_owned()));
 
         // Invalidate session because we have new credentials

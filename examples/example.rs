@@ -13,8 +13,12 @@ fn main() {
     let mut scrobbler = Scrobbler::new(api_key, api_secret);
 
     match scrobbler.authenticate_with_password(username, password) {
-        Ok(_) => { println!("Authenticated!"); }
-        Err(e) => { println!("{}", e); }
+        Ok(_) => {
+            println!("Authenticated!");
+        }
+        Err(e) => {
+            println!("{}", e);
+        }
     };
 
     let track_one = Scrobble::new("Los Campesinos!", "As Lucerne / The Low", "No Blues");
