@@ -198,3 +198,64 @@ impl LastFmClient {
         self.http_client.post(url).form(&params).send()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use mockito::mock;
+
+    #[test]
+    fn check_send_api_requests() {
+        let _m = mock("POST", mockito::Matcher::Any)
+            .match_body(mockito::Matcher::Any)
+            .create();
+        let mut client = LastFmClient::new("key", "secret");
+        client.auth.set_user_credentials("username", "password");
+        let params = client.auth.get_auth_request_params().unwrap();
+
+        let resp = client.api_request(ApiOperation::AuthWebSession, params.clone());
+        assert!(resp.is_ok());
+        let resp = client.api_request(ApiOperation::AuthMobileSession, params.clone());
+        assert!(resp.is_ok());
+        let resp = client.api_request(ApiOperation::Scrobble, params.clone());
+        assert!(resp.is_ok());
+        let resp = client.api_request(ApiOperation::NowPlaying, params.clone());
+        assert!(resp.is_ok());
+
+        // authenticated request
+        let resp = client.send_authenticated_request(ApiOperation::NowPlaying, &params);
+        assert!(resp.is_err());
+        client.auth.set_session_key("sesh");
+        let resp = client.send_authenticated_request(ApiOperation::NowPlaying, &params);
+        assert!(resp.is_ok());
+    }
+
+    // this test sucks and I need to fix it before I submit the PR
+    #[test]
+    fn check_scrobble_requests() {
+        // scrobbles / now playing
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body("{ \"scrobble\": { \"artist\": \"foo floyd and the fruit flies\", \"track\": \"old bananas\", \"album\": \"old bananas\", \"timestamp\": \"2019-10-04 13:23:40\" } }")
+            .create();
+
+        let mut client = LastFmClient::new("key", "secret");
+        client.auth.set_user_credentials("username", "password");
+        let params = client.auth.get_auth_request_params().unwrap();
+
+        let resp = client.send_scrobble(&params);
+        assert!(resp.is_err()); // lets defuckulate the api responses later
+        let resp = client.send_batch_scrobbles(&params);
+        assert!(resp.is_err());
+        let resp = client.send_now_playing(&params);
+        assert!(resp.is_err());
+    }
+
+    #[test]
+    fn check_set_user_creds() {
+        let mut client = LastFmClient::new("key", "secret");
+        client.set_user_credentials("user", "pass");
+        // looks like everything I need from here
+        // for this test is private...
+        // Will finish later.
+    }
+}
