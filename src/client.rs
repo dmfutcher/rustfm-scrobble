@@ -258,4 +258,12 @@ mod tests {
         // for this test is private...
         // Will finish later.
     }
+
+    #[test]
+    fn sesh_keys() {
+        let mut client = LastFmClient::new("key", "secret");
+        client.set_user_credentials("user", "pass");
+        client.authenticate_with_session_key("seshkey");
+        assert_eq!("seshkey", client.session_key().unwrap());
+    }
 }
