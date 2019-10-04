@@ -120,8 +120,13 @@ pub mod metadata {
 
         /// Constructs a new Scrobble instance, representing a music track
         /// played in the past.
-        pub fn new(artist: String, track: String, album: String) -> Scrobble {
-            Scrobble{ artist, track, album, timestamp: None }
+        pub fn new(artist: &str, track: &str, album: &str) -> Scrobble {
+            Scrobble{
+                artist: artist.to_owned(),
+                track: track.to_owned(),
+                album: album.to_owned(),
+                timestamp: None,
+            }
         }
 
         pub fn with_timestamp(&mut self, timestamp: u64) -> &mut Scrobble {
@@ -145,16 +150,16 @@ pub mod metadata {
             params
         }
 
-        pub fn artist(&self) -> String {
-            self.artist.clone()
+        pub fn artist(&self) -> &str {
+            &self.artist
         }
 
-        pub fn track(&self) -> String {
-            self.track.clone()
+        pub fn track(&self) -> &str {
+            &self.track
         }
 
-        pub fn album(&self) -> String {
-            self.album.clone()
+        pub fn album(&self) -> &str {
+            &self.album
         }
 
     }

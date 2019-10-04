@@ -17,7 +17,7 @@ pub struct Scrobbler {
 
 impl Scrobbler {
     /// Creates a new Scrobbler with the given Last.fm API Key and API Secret
-    pub fn new(api_key: String, api_secret: String) -> Scrobbler {
+    pub fn new(api_key: &str, api_secret: &str) -> Scrobbler {
         let client = LastFmClient::new(api_key, api_secret);
 
         Scrobbler { client }
@@ -27,25 +27,25 @@ impl Scrobbler {
     /// the API key and API secret to authenticate with Last.fm API using 'getMobileSession'
     /// authentication scheme.
     #[deprecated(since="0.9.1", note="Use `authenticate_with_password`, `authenticate_with_token` or `authenticate_with_session_key`")]
-    pub fn authenticate(&mut self, username: String, password: String) -> Result<SessionResponse> {
+    pub fn authenticate(&mut self, username: &str, password: &str) -> Result<SessionResponse> {
         self.authenticate_with_password(username, password)
     }
 
-    pub fn authenticate_with_password(&mut self, username: String, password: String) -> Result<SessionResponse> {
+    pub fn authenticate_with_password(&mut self, username: &str, password: &str) -> Result<SessionResponse> {
         self.client.set_user_credentials(username, password);
         self.client
             .authenticate_with_password()
             .map_err(ScrobblerError::new)
     }
 
-     pub fn authenticate_with_token(&mut self, token: String) -> Result<SessionResponse> {
+     pub fn authenticate_with_token(&mut self, token: &str) -> Result<SessionResponse> {
         self.client.set_user_token(token);
         self.client
             .authenticate_with_token()
             .map_err(ScrobblerError::new)
     }
 
-    pub fn authenticate_with_session_key(&mut self, session_key: String) {
+    pub fn authenticate_with_session_key(&mut self, session_key: &str) {
         self.client.authenticate_with_session_key(session_key)
     }
 
@@ -88,7 +88,7 @@ impl Scrobbler {
             for (key, val) in scrobble_params.iter() {
                 // batched parameters need array notation suffix ie.
                 // "artist[1]"" = "Artist 1", "artist[2]" = "Artist 2"
-                params.insert(format!("{}[{}]", key.clone(), i), val.clone());
+                params.insert(format!("{}[{}]", key, i), val.clone());
             }
         }
 
@@ -100,7 +100,7 @@ impl Scrobbler {
     /// Gets the session key the client is currently authenticated with. Returns
     /// `None` if not authenticated. Valid session keys can be stored and used
     /// to authenticate with `authenticate_with_session_key`.
-    pub fn session_key(&self) -> Option<String> {
+    pub fn session_key(&self) -> Option<&str> {
         self.client.session_key()
     }
 
