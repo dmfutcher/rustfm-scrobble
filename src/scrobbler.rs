@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
 use std::result;
-use std::time::UNIX_EPOCH;
+use std::time::{SystemTimeError, UNIX_EPOCH};
 
 type Result<T> = result::Result<T, ScrobblerError>;
 
@@ -42,16 +42,12 @@ impl Scrobbler {
         password: &str,
     ) -> Result<SessionResponse> {
         self.client.set_user_credentials(username, password);
-        self.client
-            .authenticate_with_password()
-            .map_err(ScrobblerError::new)
+        Ok(self.client.authenticate_with_password()?)
     }
 
     pub fn authenticate_with_token(&mut self, token: &str) -> Result<SessionResponse> {
         self.client.set_user_token(token);
-        self.client
-            .authenticate_with_token()
-            .map_err(ScrobblerError::new)
+        Ok(self.client.authenticate_with_token()?)
     }
 
     pub fn authenticate_with_session_key(&mut self, session_key: &str) {
@@ -63,23 +59,20 @@ impl Scrobbler {
     pub fn now_playing(&self, scrobble: Scrobble) -> Result<NowPlayingResponse> {
         let params = scrobble.as_map();
 
-        self.client
-            .send_now_playing(&params)
-            .map_err(ScrobblerError::new)
+        Ok(self.client.send_now_playing(&params)?)
     }
 
     /// Registers a scrobble (play) of the track with the given title by the given artist in
     /// the account of the currently authenticated user at the current time.
     pub fn scrobble(&self, scrobble: Scrobble) -> Result<ScrobbleResponse> {
         let mut params = scrobble.as_map();
+        let current_time = UNIX_EPOCH.elapsed()?;
 
         params
             .entry("timestamp".to_string())
-            .or_insert_with(|| format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
+            .or_insert_with(|| format!("{}", current_time.as_secs()));
 
-        self.client
-            .send_scrobble(&params)
-            .map_err(ScrobblerError::new)
+        Ok(self.client.send_scrobble(&params)?)
     }
 
     pub fn scrobble_batch(&self, batch: ScrobbleBatch) -> Result<BatchScrobbleResponse> {
@@ -96,9 +89,10 @@ impl Scrobbler {
 
         for (i, scrobble) in batch.iter().enumerate() {
             let mut scrobble_params = scrobble.as_map();
+            let current_time = UNIX_EPOCH.elapsed()?;
             scrobble_params
                 .entry("timestamp".to_string())
-                .or_insert_with(|| format!("{}", UNIX_EPOCH.elapsed().unwrap().as_secs()));
+                .or_insert_with(|| format!("{}", current_time.as_secs()));
 
             for (key, val) in scrobble_params.iter() {
                 // batched parameters need array notation suffix ie.
@@ -107,9 +101,7 @@ impl Scrobbler {
             }
         }
 
-        self.client
-            .send_batch_scrobbles(&params)
-            .map_err(ScrobblerError::new)
+        Ok(self.client.send_batch_scrobbles(&params)?)
     }
 
     /// Gets the session key the client is currently authenticated with. Returns
@@ -144,5 +136,17 @@ impl Error for ScrobblerError {
 
     fn cause(&self) -> Option<&dyn Error> {
         None
+    }
+}
+
+impl From<SystemTimeError> for ScrobblerError {
+    fn from(error: SystemTimeError) -> Self {
+        ScrobblerError::new(error.to_string())
+    }
+}
+
+impl From<String> for ScrobblerError {
+    fn from(error: String) -> Self {
+        ScrobblerError::new(error)
     }
 }
