@@ -1,10 +1,14 @@
 Version 1.0.0 - 2019-10-??
 ==========================
 
-  * Simpler API interface (&str over String etc.) & internal code improvements (@andy128k, #30)
-  * Use Rust Edition 2018 (@AnderEnder, #28)
-  * Use rustfmt to format code (@AnderEnder, #29)
-
+  * Simpler API interface (&str over String etc.) (@andy128k, #30)
+  * Modernized and cleaned up internal code:
+    * Use Rust Edition 2018 (@AnderEnder, #28)
+    * Use rustfmt to format code (@AnderEnder, #29)
+    * Improved error handling using From trait (@AnderEnder, #33)
+  * Remove deprecated `Scrobbler::authenticate` (@skneko, #31 #32)
+  * Updated dependencies:
+    * Replace outdated `rust-crypto` with `md5` crate (@AnderEnder, #34)
 
 Version 0.9.2 - 2019-04-25
 ==========================
