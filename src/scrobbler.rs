@@ -208,4 +208,100 @@ mod tests {
 
         assert!(err.cause().is_none());
     }
+
+    #[test]
+    fn check_scrobbler_now_playing() {
+        let mut scrobbler = Scrobbler::new("api_key", "api_secret");
+
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+                {   
+                    "session": {
+                        "key": "key",
+                        "subscriber": 1337,
+                        "name": "foo floyd"
+                    }
+                }
+            "#,
+            )
+            .create();
+
+        let resp = scrobbler.authenticate_with_token("some_token");
+        assert!(resp.is_ok());
+
+        let mut scrobble = crate::models::metadata::Scrobble::new(
+            "foo floyd and the fruit flies",
+            "old bananas",
+            "old bananas",
+        );
+        scrobble.with_timestamp(1337);
+
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+            { 
+                "nowplaying": {
+                            "artist": [ "0", "foo floyd and the fruit flies" ],
+                            "album": [ "1", "old bananas" ], 
+                            "albumArtist": [ "0", "foo floyd"],
+                            "track": [ "1", "old bananas"], 
+                            "timestamp": "2019-10-04 13:23:40" 
+                        }
+            }
+            "#,
+            )
+            .create();
+
+        let resp = scrobbler.now_playing(scrobble);
+        assert!(resp.is_ok());
+    }
+
+    #[test]
+    fn check_scrobbler_scrobble() {
+        let mut scrobbler = Scrobbler::new("api_key", "api_secret");
+
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+                {   
+                    "session": {
+                        "key": "key",
+                        "subscriber": 1337,
+                        "name": "foo floyd"
+                    }
+                }
+            "#,
+            )
+            .create();
+
+        let resp = scrobbler.authenticate_with_token("some_token");
+        assert!(resp.is_ok());
+
+        let mut scrobble = crate::models::metadata::Scrobble::new(
+            "foo floyd and the fruit flies",
+            "old bananas",
+            "old bananas",
+        );
+        scrobble.with_timestamp(1337);
+
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+            { 
+                "scrobbles": [{
+                        "artist": [ "0", "foo floyd and the fruit flies" ],
+                        "album": [ "1", "old bananas" ], 
+                        "albumArtist": [ "0", "foo floyd"],
+                        "track": [ "1", "old bananas"], 
+                        "timestamp": "2019-10-04 13:23:40" 
+                }]
+            }
+            "#,
+            )
+            .create();
+
+        let resp = scrobbler.scrobble(scrobble);
+        assert!(resp.is_ok());
+    }
 }
