@@ -196,4 +196,16 @@ mod tests {
         let resp = scrobbler.authenticate_with_token("some_token");
         assert!(resp.is_ok());
     }
+
+    #[test]
+    fn check_scrobbler_error() {
+        let err = ScrobblerError::new("test_error".into());
+        let fmt = format!("{}", err);
+        assert_eq!("test_error", fmt);
+
+        let desc = err.description();
+        assert_eq!("test_error", desc);
+
+        assert!(err.cause().is_none());
+    }
 }
