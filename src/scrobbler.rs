@@ -120,6 +120,8 @@ impl Scrobbler {
     }
 }
 
+
+// TODO(v1): Consider moving this to error.rs? It's getting somewhat involved
 #[derive(Debug)]
 pub struct ScrobblerError {
     err_msg: String,
