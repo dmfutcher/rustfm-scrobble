@@ -1,10 +1,11 @@
 use rustfm_scrobble::{Scrobble, Scrobbler};
+use std::error::Error;
 
 // Example rustfm-scrobble client showing authentication, now playing and
 // scrobbling.
 // Replace credential values with your own to test.
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let api_key = "{{api_key}}";
     let api_secret = "{{api_secret}}";
     let username = "{{username}}";
@@ -12,32 +13,15 @@ fn main() {
 
     let mut scrobbler = Scrobbler::new(api_key, api_secret);
 
-    match scrobbler.authenticate_with_password(username, password) {
-        Ok(_) => {
-            println!("Authenticated!");
-        }
-        Err(e) => {
-            println!("Authentication failed: {}", e);
-        }
-    };
+    let response = scrobbler.authenticate_with_password(username, password)?;
+    println!("Authenticated! {:#?}", response);
 
     let track = Scrobble::new("Los Campesinos!", "As Lucerne / The Low", "No Blues");
-    match scrobbler.now_playing(track.clone()) {
-        Ok(resp) => {
-            println!("Now playing: {} - {}", resp.artist.text, resp.track.text);
-        }
-        Err(e) => {
-            println!("Now playing failed: {}", e);
-        }
-    }
+    let response = scrobbler.now_playing(track.clone())?;
+    println!("Sent now playing! {:#?}", response);
 
-    match scrobbler.scrobble(track) {
-        Ok(resp) => {
-            println!("Scrobbled {} - {} at timestamp: {}", resp.artist.text, resp.track.text, resp.timestamp);
-        }
-        Err(e) => {
-            println!("Scrobble failed: {}", e);
-        }
-    }
+    let response = scrobbler.scrobble(track)?;
+    println!("Sent scrobble! {:#?}", response);
 
+    Ok(())
 }
