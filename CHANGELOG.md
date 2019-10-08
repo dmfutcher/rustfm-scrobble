@@ -7,6 +7,7 @@ Version 1.0.0 - 2019-10-??
     * Use rustfmt to format code (@AnderEnder, #29)
     * Improved error handling using From trait (@AnderEnder, #33)
   * Remove deprecated `Scrobbler::authenticate` (@skneko, #31 #32)
+  * Simplified and improved example code (#22)
   * Updated dependencies:
     * Replace outdated `rust-crypto` with `md5` crate (@AnderEnder, #34)
 
