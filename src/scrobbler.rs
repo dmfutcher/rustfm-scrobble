@@ -139,3 +139,61 @@ impl From<String> for ScrobblerError {
         ScrobblerError::new(error)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use mockito::mock;
+
+    #[test]
+    fn make_scrobbler_pass_auth() {
+        let _m = mock("POST", mockito::Matcher::Any).create();
+
+        let mut scrobbler = Scrobbler::new("api_key", "api_secret");
+        let resp = scrobbler.authenticate_with_password("user", "pass");
+        assert!(resp.is_err());
+
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+                {   
+                    "session": {
+                        "key": "key",
+                        "subscriber": 1337,
+                        "name": "foo floyd"
+                    }
+                }
+            "#,
+            )
+            .create();
+
+        let resp = scrobbler.authenticate_with_password("user", "pass");
+        assert!(resp.is_ok());
+    }
+
+    #[test]
+    fn make_scrobbler_token_auth() {
+        let _m = mock("POST", mockito::Matcher::Any).create();
+
+        let mut scrobbler = Scrobbler::new("api_key", "api_secret");
+        let resp = scrobbler.authenticate_with_token("some_token");
+        assert!(resp.is_err());
+
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+                {   
+                    "session": {
+                        "key": "key",
+                        "subscriber": 1337,
+                        "name": "foo floyd"
+                    }
+                }
+            "#,
+            )
+            .create();
+
+        let resp = scrobbler.authenticate_with_token("some_token");
+        assert!(resp.is_ok());
+    }
+}
