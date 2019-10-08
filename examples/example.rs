@@ -17,37 +17,27 @@ fn main() {
             println!("Authenticated!");
         }
         Err(e) => {
-            println!("{}", e);
+            println!("Authentication failed: {}", e);
         }
     };
 
-    let track_one = Scrobble::new("Los Campesinos!", "As Lucerne / The Low", "No Blues");
-    match scrobbler.now_playing(track_one) {
-        Ok(_) => {
-            println!("Sent now playing! ");
+    let track = Scrobble::new("Los Campesinos!", "As Lucerne / The Low", "No Blues");
+    match scrobbler.now_playing(track.clone()) {
+        Ok(resp) => {
+            println!("Now playing: {} - {}", resp.artist.text, resp.track.text);
         }
         Err(e) => {
-            println!("{}", e);
+            println!("Now playing failed: {}", e);
         }
     }
 
-    let track_two = Scrobble::new("Los Campesinos!", "The Time Before the Last", "No Blues");
-    match scrobbler.scrobble(track_two) {
-        Ok(_) => {
-            println!("Sent scrobble!");
+    match scrobbler.scrobble(track) {
+        Ok(resp) => {
+            println!("Scrobbled {} - {} at timestamp: {}", resp.artist.text, resp.track.text, resp.timestamp);
         }
         Err(e) => {
-            println!("{}", e);
+            println!("Scrobble failed: {}", e);
         }
     }
 
-    let track_three = Scrobble::new("Los Campesinos!", "Selling Rope", "No Blues");
-    match scrobbler.now_playing(track_three) {
-        Ok(_) => {
-            println!("Sent now playing! ");
-        }
-        Err(e) => {
-            println!("{}", e);
-        }
-    }
 }
