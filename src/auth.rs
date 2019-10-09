@@ -1,6 +1,7 @@
 // Authentication utilities for Last.fm Scrobble API 2.0
 use std::collections::HashMap;
 
+#[derive(PartialEq, Debug)]
 pub struct AuthCredentials {
     // Application specific key & secret
     api_key: String,
@@ -13,13 +14,13 @@ pub struct AuthCredentials {
     session_key: Option<String>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 struct UserCredentials {
     username: String,
     password: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 enum Credentials {
     UserSupplied(UserCredentials),
     Token(String),
@@ -53,7 +54,6 @@ impl AuthCredentials {
 
     pub fn set_user_token(&mut self, token: &str) {
         self.credentials = Some(Credentials::Token(token.to_owned()));
-
         // Invalidate session because we have new credentials
         self.session_key = None
     }
@@ -130,5 +130,113 @@ impl AuthCredentials {
         sig.push_str(self.api_secret.as_str());
 
         format!("{:x}", md5::compute(sig.as_bytes()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_user_credentials() {
+        let empty = UserCredentials {
+            username: "".into(),
+            password: "".into(),
+        };
+
+        assert!(!UserCredentials::can_authenticate(&empty));
+
+        let not_empty = UserCredentials {
+            username: "foo".into(),
+            password: "bar".into(),
+        };
+
+        assert!(UserCredentials::can_authenticate(&not_empty));
+    }
+
+    #[test]
+    fn check_new_auth_credentials() {
+        let lhs = AuthCredentials {
+            api_key: "Key".into(),
+            api_secret: "Secret".into(),
+            credentials: None,
+            session_key: None,
+        };
+        let rhs = AuthCredentials::new_partial("Key".into(), "Secret".into());
+
+        assert_eq!(lhs, rhs);
+    }
+
+    #[test]
+    fn check_set_user_creds() {
+        let mut auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.set_user_credentials("Username".into(), "Password".into());
+
+        let internal_creds = auth_creds.credentials.unwrap();
+
+        let creds = match internal_creds {
+            Credentials::UserSupplied(val) => val,
+            _ => panic!("Invalid UserCredentials Value"),
+        };
+
+        assert_eq!(creds.username, "Username");
+        assert_eq!(creds.password, "Password");
+    }
+
+    #[test]
+    fn check_set_user_token() {
+        let mut auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.set_user_token("Token".into());
+
+        let token = auth_creds.credentials.unwrap();
+
+        let token = match token {
+            Credentials::Token(val) => val,
+            _ => panic!("Invalid Token"),
+        };
+
+        assert_eq!(token, "Token");
+    }
+
+    #[test]
+    fn check_set_session_key_and_is_authed() {
+        let mut auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.set_session_key("SomeKey".into());
+        let key = auth_creds.session_key().unwrap();
+
+        assert_eq!(key, "SomeKey");
+        assert!(auth_creds.is_authenticated());
+    }
+
+    #[test]
+    fn check_auth_req_params_and_get_signature() {
+        let mut auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.set_user_token("Token".into());
+        let param_map = auth_creds.get_auth_request_params().unwrap();
+
+        assert_eq!(param_map["token"], "Token");
+
+        auth_creds.set_user_credentials("Foo".into(), "Bar".into());
+        let param_map = auth_creds.get_auth_request_params().unwrap();
+
+        assert_eq!(param_map["username"], "Foo");
+        assert_eq!(param_map["password"], "Bar");
+    }
+
+    #[test]
+    #[should_panic]
+    fn check_get_bad_params() {
+        let auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.get_auth_request_params().unwrap();
+    }
+
+    #[test]
+    fn check_req_params() {
+        let mut auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.set_session_key("SomeKey".into());
+        let req_params = auth_creds.get_request_params();
+
+        assert_eq!(req_params["api_key".into()], "Key");
+        assert_eq!(req_params["sk".into()], "SomeKey");
     }
 }

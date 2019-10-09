@@ -7,6 +7,9 @@ use std::collections::HashMap;
 use std::fmt;
 use std::io::Read;
 
+#[cfg(test)]
+use mockito;
+
 use crate::auth::AuthCredentials;
 use crate::models::responses::{
     AuthResponse, BatchScrobbleResponse, BatchScrobbleResponseWrapper, NowPlayingResponse,
@@ -182,12 +185,184 @@ impl LastFmClient {
         operation: ApiOperation,
         mut params: HashMap<String, String>,
     ) -> Result<reqwest::Response, reqwest::Error> {
+        #[cfg(not(test))]
         let url = "https://ws.audioscrobbler.com/2.0/?format=json";
+        #[cfg(test)]
+        let url = &mockito::server_url();
+
         let signature = self.auth.get_signature(operation.to_string(), &params);
 
         params.insert("method".to_string(), operation.to_string());
         params.insert("api_sig".to_string(), signature);
 
         self.http_client.post(url).form(&params).send()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use mockito::mock;
+
+    #[test]
+    fn check_send_api_requests() {
+        let _m = mock("POST", mockito::Matcher::Any)
+            .match_body(mockito::Matcher::Any)
+            .create();
+        let mut client = LastFmClient::new("key", "secret");
+        client.auth.set_user_credentials("username", "password");
+        let params = client.auth.get_auth_request_params().unwrap();
+
+        let resp = client.api_request(ApiOperation::AuthWebSession, params.clone());
+        assert!(resp.is_ok());
+        let resp = client.api_request(ApiOperation::AuthMobileSession, params.clone());
+        assert!(resp.is_ok());
+        let resp = client.api_request(ApiOperation::Scrobble, params.clone());
+        assert!(resp.is_ok());
+        let resp = client.api_request(ApiOperation::NowPlaying, params.clone());
+        assert!(resp.is_ok());
+
+        // authenticated request
+        let resp = client.send_authenticated_request(ApiOperation::NowPlaying, &params);
+        assert!(resp.is_err());
+        client.auth.set_session_key("sesh");
+        let resp = client.send_authenticated_request(ApiOperation::NowPlaying, &params);
+        assert!(resp.is_ok());
+    }
+
+    #[test]
+    fn check_send_scrobble() {
+        let _m = mock("POST", mockito::Matcher::Any).create();
+
+        let mut client = LastFmClient::new("key", "secret");
+        client.auth.set_user_credentials("username", "password");
+        client.auth.set_session_key("SeshKey");
+        let params = client.auth.get_auth_request_params().unwrap();
+
+        let resp = client.send_scrobble(&params);
+        assert!(resp.is_err());
+
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+            { 
+                "scrobbles": [{
+                        "artist": [ "0", "foo floyd and the fruit flies" ],
+                        "album": [ "1", "old bananas" ], 
+                        "albumArtist": [ "0", "foo floyd"],
+                        "track": [ "1", "old bananas"], 
+                        "timestamp": "2019-10-04 13:23:40" 
+                }]
+            }
+            "#,
+            )
+            .create();
+
+        let resp = client.send_scrobble(&params);
+        assert!(resp.is_ok());
+    }
+
+    #[test]
+    fn check_send_batch_scrobble() {
+        let _m = mock("POST", mockito::Matcher::Any).create();
+
+        let mut client = LastFmClient::new("key", "secret");
+        client.auth.set_user_credentials("username", "password");
+        client.auth.set_session_key("SeshKey");
+        let params = client.auth.get_auth_request_params().unwrap();
+
+        let resp = client.send_batch_scrobbles(&params);
+        assert!(resp.is_err());
+
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+            { 
+                "scrobbles": [{
+                    "scrobble":
+                        {
+                            "artist": [ "0", "foo floyd and the fruit flies" ],
+                            "album": [ "1", "old bananas" ], 
+                            "albumArtist": [ "0", "foo floyd"],
+                            "track": [ "1", "old bananas"], 
+                            "timestamp": "2019-10-04 13:23:40" 
+                        }
+                }]
+            }
+            "#,
+            )
+            .create();
+
+        let resp = client.send_batch_scrobbles(&params);
+        assert!(resp.is_err());
+    }
+
+    #[test]
+    fn check_send_now_playing() {
+        let _m = mock("POST", mockito::Matcher::Any).create();
+
+        let mut client = LastFmClient::new("key", "secret");
+        client.auth.set_user_credentials("username", "password");
+        client.auth.set_session_key("SeshKey");
+        let params = client.auth.get_auth_request_params().unwrap();
+
+        let resp = client.send_now_playing(&params);
+        assert!(resp.is_err());
+
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+            { 
+                "nowplaying": {
+                            "artist": [ "0", "foo floyd and the fruit flies" ],
+                            "album": [ "1", "old bananas" ], 
+                            "albumArtist": [ "0", "foo floyd"],
+                            "track": [ "1", "old bananas"], 
+                            "timestamp": "2019-10-04 13:23:40" 
+                        }
+            }
+            "#,
+            )
+            .create();
+
+        let resp = client.send_now_playing(&params);
+        assert!(resp.is_ok());
+    }
+
+    #[test]
+    fn check_set_user_creds_and_token_then_auth() {
+        let mut client = LastFmClient::new("key", "secret");
+        client.set_user_credentials("user", "pass");
+        client.set_user_token("SomeToken");
+
+        let _m = mock("POST", mockito::Matcher::Any).create();
+
+        let res = client.authenticate_with_password();
+        assert!(res.is_err());
+
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+                {   
+                    "session": {
+                        "key": "key",
+                        "subscriber": 1337,
+                        "name": "foo floyd"
+                    }
+                }
+            "#,
+            )
+            .create();
+
+        let res = client.authenticate_with_password();
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    fn sesh_keys() {
+        let mut client = LastFmClient::new("key", "secret");
+        client.set_user_credentials("user", "pass");
+        client.authenticate_with_session_key("seshkey");
+        assert_eq!("seshkey", client.session_key().unwrap());
     }
 }

@@ -161,4 +161,37 @@ pub mod metadata {
             &self.album
         }
     }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn make_scrobble() {
+            let mut scrobble = Scrobble::new(
+                "foo floyd and the fruit flies",
+                "old bananas",
+                "old bananas",
+            );
+            scrobble.with_timestamp(1337);
+            assert_eq!(scrobble.artist(), "foo floyd and the fruit flies");
+            assert_eq!(scrobble.track(), "old bananas");
+            assert_eq!(scrobble.album(), "old bananas");
+            assert_eq!(scrobble.timestamp, Some(1337));
+        }
+
+        #[test]
+        fn make_scrobble_check_map() {
+            let scrobble = Scrobble::new(
+                "foo floyd and the fruit flies",
+                "old bananas",
+                "old bananas",
+            );
+
+            let params = scrobble.as_map();
+            assert_eq!(params["artist"], "foo floyd and the fruit flies");
+            assert_eq!(params["track"], "old bananas");
+            assert_eq!(params["album"], "old bananas");
+        }
+    }
 }
