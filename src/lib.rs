@@ -13,7 +13,7 @@ mod models;
 mod scrobbler;
 
 pub use crate::models::metadata::{Scrobble, ScrobbleBatch};
-pub use crate::scrobbler::{Scrobbler, Error};
+pub use crate::scrobbler::{Error, Scrobbler};
 
 pub mod responses {
     pub use crate::models::responses::{
