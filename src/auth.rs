@@ -2,13 +2,13 @@
 use std::collections::HashMap;
 
 #[derive(PartialEq, Debug)]
-pub struct AuthCredentials {
+pub struct Credentials {
     // Application specific key & secret
     api_key: String,
     api_secret: String,
 
     // Individual user's username & pass, or auth token
-    credentials: Option<Credentials>,
+    credentials: Option<CredentialsVariant>,
 
     // Long-lasting session key (used once UserCredentials are authenticated)
     session_key: Option<String>,
@@ -21,7 +21,7 @@ struct UserCredentials {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-enum Credentials {
+enum CredentialsVariant {
     UserSupplied(UserCredentials),
     Token(String),
 }
@@ -32,9 +32,9 @@ impl UserCredentials {
     }
 }
 
-impl AuthCredentials {
-    pub fn new_partial(api_key: &str, api_secret: &str) -> AuthCredentials {
-        AuthCredentials {
+impl Credentials {
+    pub fn new_partial(api_key: &str, api_secret: &str) -> Self {
+        Self {
             api_key: api_key.to_owned(),
             api_secret: api_secret.to_owned(),
             credentials: None,
@@ -43,7 +43,7 @@ impl AuthCredentials {
     }
 
     pub fn set_user_credentials(&mut self, username: &str, password: &str) {
-        self.credentials = Some(Credentials::UserSupplied(UserCredentials {
+        self.credentials = Some(CredentialsVariant::UserSupplied(UserCredentials {
             username: username.to_owned(),
             password: password.to_owned(),
         }));
@@ -53,7 +53,7 @@ impl AuthCredentials {
     }
 
     pub fn set_user_token(&mut self, token: &str) {
-        self.credentials = Some(Credentials::Token(token.to_owned()));
+        self.credentials = Some(CredentialsVariant::Token(token.to_owned()));
         // Invalidate session because we have new credentials
         self.session_key = None
     }
@@ -85,14 +85,14 @@ impl AuthCredentials {
         params.insert("api_key".to_string(), self.api_key.clone());
 
         match credentials {
-            Credentials::UserSupplied(user_credentials) => {
+            CredentialsVariant::UserSupplied(user_credentials) => {
                 if !user_credentials.can_authenticate() {
                     return Err("Invalid authentication credentials".to_string());
                 }
                 params.insert("username".to_string(), user_credentials.username.clone());
                 params.insert("password".to_string(), user_credentials.password.clone());
             }
-            Credentials::Token(token) => {
+            CredentialsVariant::Token(token) => {
                 params.insert("token".to_string(), token.clone());
             }
         }
@@ -156,26 +156,26 @@ mod tests {
 
     #[test]
     fn check_new_auth_credentials() {
-        let lhs = AuthCredentials {
+        let lhs = Credentials {
             api_key: "Key".into(),
             api_secret: "Secret".into(),
             credentials: None,
             session_key: None,
         };
-        let rhs = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        let rhs = Credentials::new_partial("Key".into(), "Secret".into());
 
         assert_eq!(lhs, rhs);
     }
 
     #[test]
     fn check_set_user_creds() {
-        let mut auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
         auth_creds.set_user_credentials("Username".into(), "Password".into());
 
         let internal_creds = auth_creds.credentials.unwrap();
 
         let creds = match internal_creds {
-            Credentials::UserSupplied(val) => val,
+            CredentialsVariant::UserSupplied(val) => val,
             _ => panic!("Invalid UserCredentials Value"),
         };
 
@@ -185,13 +185,13 @@ mod tests {
 
     #[test]
     fn check_set_user_token() {
-        let mut auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
         auth_creds.set_user_token("Token".into());
 
         let token = auth_creds.credentials.unwrap();
 
         let token = match token {
-            Credentials::Token(val) => val,
+            CredentialsVariant::Token(val) => val,
             _ => panic!("Invalid Token"),
         };
 
@@ -200,7 +200,7 @@ mod tests {
 
     #[test]
     fn check_set_session_key_and_is_authed() {
-        let mut auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
         auth_creds.set_session_key("SomeKey".into());
         let key = auth_creds.session_key().unwrap();
 
@@ -210,7 +210,7 @@ mod tests {
 
     #[test]
     fn check_auth_req_params_and_get_signature() {
-        let mut auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
         auth_creds.set_user_token("Token".into());
         let param_map = auth_creds.get_auth_request_params().unwrap();
 
@@ -226,13 +226,13 @@ mod tests {
     #[test]
     #[should_panic]
     fn check_get_bad_params() {
-        let auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        let auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
         auth_creds.get_auth_request_params().unwrap();
     }
 
     #[test]
     fn check_req_params() {
-        let mut auth_creds = AuthCredentials::new_partial("Key".into(), "Secret".into());
+        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
         auth_creds.set_session_key("SomeKey".into());
         let req_params = auth_creds.get_request_params();
 
