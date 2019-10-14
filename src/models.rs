@@ -83,7 +83,7 @@ pub mod responses {
         where
             D: serde::Deserializer<'de>,
         {
-            let deser_result: json::Value = r#try!(serde::Deserialize::deserialize(de));
+            let deser_result: json::Value = serde::Deserialize::deserialize(de)?;
             match deser_result {
                 json::Value::String(ref s) if &*s == "1" => Ok(true),
                 json::Value::String(ref s) if &*s == "0" => Ok(false),
@@ -119,8 +119,8 @@ pub mod metadata {
     impl Scrobble {
         /// Constructs a new Scrobble instance, representing a music track
         /// played in the past.
-        pub fn new(artist: &str, track: &str, album: &str) -> Scrobble {
-            Scrobble {
+        pub fn new(artist: &str, track: &str, album: &str) -> Self {
+            Self {
                 artist: artist.to_owned(),
                 track: track.to_owned(),
                 album: album.to_owned(),
@@ -128,7 +128,7 @@ pub mod metadata {
             }
         }
 
-        pub fn with_timestamp(&mut self, timestamp: u64) -> &mut Scrobble {
+        pub fn with_timestamp(&mut self, timestamp: u64) -> &mut Self {
             self.timestamp = Some(timestamp);
             self
         }
@@ -159,6 +159,39 @@ pub mod metadata {
 
         pub fn album(&self) -> &str {
             &self.album
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn make_scrobble() {
+            let mut scrobble = Scrobble::new(
+                "foo floyd and the fruit flies",
+                "old bananas",
+                "old bananas",
+            );
+            scrobble.with_timestamp(1337);
+            assert_eq!(scrobble.artist(), "foo floyd and the fruit flies");
+            assert_eq!(scrobble.track(), "old bananas");
+            assert_eq!(scrobble.album(), "old bananas");
+            assert_eq!(scrobble.timestamp, Some(1337));
+        }
+
+        #[test]
+        fn make_scrobble_check_map() {
+            let scrobble = Scrobble::new(
+                "foo floyd and the fruit flies",
+                "old bananas",
+                "old bananas",
+            );
+
+            let params = scrobble.as_map();
+            assert_eq!(params["artist"], "foo floyd and the fruit flies");
+            assert_eq!(params["track"], "old bananas");
+            assert_eq!(params["album"], "old bananas");
         }
     }
 }

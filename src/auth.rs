@@ -1,29 +1,27 @@
 // Authentication utilities for Last.fm Scrobble API 2.0
 use std::collections::HashMap;
 
-use crypto::digest::Digest;
-use crypto::md5::Md5;
-
-pub struct AuthCredentials {
+#[derive(PartialEq, Debug)]
+pub struct Credentials {
     // Application specific key & secret
     api_key: String,
     api_secret: String,
 
     // Individual user's username & pass, or auth token
-    credentials: Option<Credentials>,
+    credentials: Option<CredentialsVariant>,
 
     // Long-lasting session key (used once UserCredentials are authenticated)
     session_key: Option<String>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 struct UserCredentials {
     username: String,
     password: String,
 }
 
-#[derive(Clone)]
-enum Credentials {
+#[derive(Clone, Debug, PartialEq)]
+enum CredentialsVariant {
     UserSupplied(UserCredentials),
     Token(String),
 }
@@ -34,9 +32,9 @@ impl UserCredentials {
     }
 }
 
-impl AuthCredentials {
-    pub fn new_partial(api_key: &str, api_secret: &str) -> AuthCredentials {
-        AuthCredentials {
+impl Credentials {
+    pub fn new_partial(api_key: &str, api_secret: &str) -> Self {
+        Self {
             api_key: api_key.to_owned(),
             api_secret: api_secret.to_owned(),
             credentials: None,
@@ -45,7 +43,7 @@ impl AuthCredentials {
     }
 
     pub fn set_user_credentials(&mut self, username: &str, password: &str) {
-        self.credentials = Some(Credentials::UserSupplied(UserCredentials {
+        self.credentials = Some(CredentialsVariant::UserSupplied(UserCredentials {
             username: username.to_owned(),
             password: password.to_owned(),
         }));
@@ -57,8 +55,7 @@ impl AuthCredentials {
     }
 
     pub fn set_user_token(&mut self, token: &str) {
-        self.credentials = Some(Credentials::Token(token.to_owned()));
-
+        self.credentials = Some(CredentialsVariant::Token(token.to_owned()));
         // Invalidate session because we have new credentials
         self.session_key = None
     }
@@ -91,14 +88,14 @@ impl AuthCredentials {
         params.insert("api_key".to_string(), self.api_key.clone());
 
         match credentials {
-            Credentials::UserSupplied(user_credentials) => {
+            CredentialsVariant::UserSupplied(user_credentials) => {
                 if !user_credentials.can_authenticate() {
                     return Err("Invalid authentication credentials".to_string());
                 }
                 params.insert("username".to_string(), user_credentials.username.clone());
                 params.insert("password".to_string(), user_credentials.password.clone());
             }
-            Credentials::Token(token) => {
+            CredentialsVariant::Token(token) => {
                 params.insert("token".to_string(), token.clone());
             }
         }
@@ -111,7 +108,10 @@ impl AuthCredentials {
     pub fn get_request_params(&self) -> HashMap<String, String> {
         let mut params = HashMap::new();
         params.insert("api_key".to_string(), self.api_key.clone());
-        params.insert("sk".to_string(), self.session_key.clone().unwrap());
+        params.insert(
+            "sk".to_string(),
+            self.session_key.clone().unwrap_or_default(),
+        );
 
         params
     }
@@ -134,8 +134,114 @@ impl AuthCredentials {
 
         sig.push_str(self.api_secret.as_str());
 
-        let mut hash = Md5::new();
-        hash.input(sig.as_bytes());
-        hash.result_str()
+        format!("{:x}", md5::compute(sig.as_bytes()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_user_credentials() {
+        let empty = UserCredentials {
+            username: "".into(),
+            password: "".into(),
+        };
+
+        assert!(!UserCredentials::can_authenticate(&empty));
+
+        let not_empty = UserCredentials {
+            username: "foo".into(),
+            password: "bar".into(),
+        };
+
+        assert!(UserCredentials::can_authenticate(&not_empty));
+    }
+
+    #[test]
+    fn check_new_auth_credentials() {
+        let lhs = Credentials {
+            api_key: "Key".into(),
+            api_secret: "Secret".into(),
+            credentials: None,
+            session_key: None,
+        };
+        let rhs = Credentials::new_partial("Key".into(), "Secret".into());
+
+        assert_eq!(lhs, rhs);
+    }
+
+    #[test]
+    fn check_set_user_creds() {
+        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.set_user_credentials("Username".into(), "Password".into());
+
+        let internal_creds = auth_creds.credentials.unwrap();
+
+        let creds = match internal_creds {
+            CredentialsVariant::UserSupplied(val) => val,
+            _ => panic!("Invalid UserCredentials Value"),
+        };
+
+        assert_eq!(creds.username, "Username");
+        assert_eq!(creds.password, "Password");
+    }
+
+    #[test]
+    fn check_set_user_token() {
+        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.set_user_token("Token".into());
+
+        let token = auth_creds.credentials.unwrap();
+
+        let token = match token {
+            CredentialsVariant::Token(val) => val,
+            _ => panic!("Invalid Token"),
+        };
+
+        assert_eq!(token, "Token");
+    }
+
+    #[test]
+    fn check_set_session_key_and_is_authed() {
+        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.set_session_key("SomeKey".into());
+        let key = auth_creds.session_key().unwrap();
+
+        assert_eq!(key, "SomeKey");
+        assert!(auth_creds.is_authenticated());
+    }
+
+    #[test]
+    fn check_auth_req_params_and_get_signature() {
+        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.set_user_token("Token".into());
+        let param_map = auth_creds.get_auth_request_params().unwrap();
+
+        assert_eq!(param_map["token"], "Token");
+
+        auth_creds.set_user_credentials("Foo".into(), "Bar".into());
+        let param_map = auth_creds.get_auth_request_params().unwrap();
+
+        assert_eq!(param_map["username"], "Foo");
+        assert_eq!(param_map["password"], "Bar");
+    }
+
+    #[test]
+    #[should_panic]
+    fn check_get_bad_params() {
+        let auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.get_auth_request_params().unwrap();
+    }
+
+    #[test]
+    fn check_req_params() {
+        let mut auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
+        auth_creds.set_session_key("SomeKey".into());
+        let req_params = auth_creds.get_request_params();
+
+        assert_eq!(req_params["api_key".into()], "Key");
+        assert_eq!(req_params["sk".into()], "SomeKey");
     }
 }
