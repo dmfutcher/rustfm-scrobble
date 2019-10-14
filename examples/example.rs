@@ -17,10 +17,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Authenticated! {:#?}", response);
 
     let track = Scrobble::new("Los Campesinos!", "As Lucerne / The Low", "No Blues");
-    let response = scrobbler.now_playing(track.clone())?;
+    let response = scrobbler.now_playing(&track)?;
     println!("Sent now playing! {:#?}", response);
 
-    let response = scrobbler.scrobble(track)?;
+    let response = scrobbler.scrobble(&track)?;
     println!("Sent scrobble! {:#?}", response);
 
     Ok(())
