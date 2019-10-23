@@ -48,6 +48,8 @@ impl Credentials {
             password: password.to_owned(),
         }));
 
+        // TODO(v1): We do this twice, with a comment each time. Should it be in a function so it
+        //              self document by name (and good documentation on any new function)
         // Invalidate session because we have new credentials
         self.session_key = None
     }
@@ -67,6 +69,7 @@ impl Credentials {
     }
 
     // Returns true if we have valid authentication parameters AND a session token
+    // TODO(v1): Comment doesn't match the function, has the check been changed to just session token? Why?
     pub fn is_authenticated(&self) -> bool {
         self.session_key.is_some()
     }
@@ -100,6 +103,8 @@ impl Credentials {
         Ok(params)
     }
 
+    // TODO(v1): Need to document all of this. And make it obvious how all the parts fit together. 
+    //              potentially not very clear right now (naming?)
     pub fn get_request_params(&self) -> HashMap<String, String> {
         let mut params = HashMap::new();
         params.insert("api_key".to_string(), self.api_key.clone());

@@ -98,6 +98,8 @@ impl LastFm {
         self.auth.session_key()
     }
 
+    // TODO(v1): Is there a nicer way to do this than have a lot of moves and macros?
+    //              potentially could be cleaner?
     pub fn send_now_playing(
         &self,
         params: &HashMap<String, String>,
