@@ -48,15 +48,18 @@ impl Credentials {
             password: password.to_owned(),
         }));
 
-        // TODO(v1): We do this twice, with a comment each time. Should it be in a function so it
-        //              self document by name (and good documentation on any new function)
         // Invalidate session because we have new credentials
-        self.session_key = None
+        self.clear_session_key()
     }
 
     pub fn set_user_token(&mut self, token: &str) {
         self.credentials = Some(CredentialsVariant::Token(token.to_owned()));
-        // Invalidate session because we have new credentials
+        self.clear_session_key()
+    }
+
+    // Invalidates session. Usually because we have new user token / credentials, which invalidates
+    // the current session.
+    fn clear_session_key(&mut self) {
         self.session_key = None
     }
 
