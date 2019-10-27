@@ -9,11 +9,13 @@ extern crate wrapped_vec;
 
 mod auth;
 mod client;
+mod error;
 mod models;
 mod scrobbler;
 
 pub use crate::models::metadata::{Scrobble, ScrobbleBatch};
-pub use crate::scrobbler::{Error, Scrobbler};
+pub use crate::scrobbler::Scrobbler;
+pub use crate::error::Error;
 
 pub mod responses {
     pub use crate::models::responses::{

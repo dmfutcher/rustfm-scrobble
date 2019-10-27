@@ -1,14 +1,13 @@
 use crate::client::LastFm;
+use crate::error::Error;
 use crate::models::metadata::{Scrobble, ScrobbleBatch};
 use crate::models::responses::{
     BatchScrobbleResponse, NowPlayingResponse, ScrobbleResponse, SessionResponse,
 };
 
 use std::collections::HashMap;
-use std::error::Error as StdError;
-use std::fmt;
 use std::result;
-use std::time::{SystemTimeError, UNIX_EPOCH};
+use std::time::UNIX_EPOCH;
 
 type Result<T> = result::Result<T, Error>;
 
@@ -101,46 +100,6 @@ impl Scrobbler {
     }
 }
 
-
-// TODO(v1): Consider moving this to error.rs? It's getting somewhat involved
-#[derive(Debug)]
-pub struct Error {
-    err_msg: String,
-}
-
-impl Error {
-    pub fn new(err_msg: String) -> Self {
-        Self { err_msg }
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.err_msg)
-    }
-}
-
-impl StdError for Error {
-    fn description(&self) -> &str {
-        self.err_msg.as_str()
-    }
-
-    fn cause(&self) -> Option<&dyn StdError> {
-        None
-    }
-}
-
-impl From<SystemTimeError> for Error {
-    fn from(error: SystemTimeError) -> Self {
-        Self::new(error.to_string())
-    }
-}
-
-impl From<String> for Error {
-    fn from(error: String) -> Self {
-        Self::new(error)
-    }
-}
 
 #[cfg(test)]
 mod tests {
