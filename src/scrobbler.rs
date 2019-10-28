@@ -11,7 +11,26 @@ use std::time::UNIX_EPOCH;
 
 type Result<T> = result::Result<T, Error>;
 
-/// Submits song-play tracking information to Last.fm
+/// A Last.fm Scrobbler client. Submits song play information to Last.fm.
+/// 
+/// This is a client for the Scrobble and Now Playing endpoints on the Last.fm API. It handles API client and user 
+/// auth, as well as providing Scrobble and Now Playing methods, plus support for sending batches of songs to Last.fm.
+/// 
+/// See the [official scrobbling API documentation](https://www.last.fm/api/scrobbling) for more information.
+/// 
+/// High-level example usage:
+/// ```
+/// let username = "last-fm-username";
+/// let password = "last-fm-password";
+/// let api_key = "client-api-key";
+/// let api_secret = "client-api-secret";
+/// 
+/// let mut scrobbler = Scrobbler.new(api_key, api_secret);
+/// scrobbler.authenticate_with_password(username, password);
+/// 
+/// let song = Scrobble::new("Example Artist", "Example Song", "Example Album");
+/// scrobbler.scrobble(song);
+/// ```
 pub struct Scrobbler {
     client: LastFm,
 }
@@ -99,7 +118,11 @@ impl Scrobbler {
     /// let session_key = "securely-saved-old-session-key";
     /// let response = scrobbler.authenticate_with_session_key(session_key);
     /// ```
+    /// 
     /// # Response
+    /// This method has no response: the crate expects a valid session key to be provided here and has no way to
+    /// indicate if an invalidated key has been used. Clients will need to manually detect any authentication issues
+    /// via API call error responses.
     /// 
     /// # A Note on Session Keys
     /// When authenticating successfully with username/password or with an authentication token (
@@ -119,7 +142,7 @@ impl Scrobbler {
         self.client.authenticate_with_session_key(session_key)
     }
 
-    /// Registers the given track as the currently authenticated user's "now playing" track.
+    /// Registers the given [`Scrobble`]/track as the currently authenticated user's "now playing" track.
     /// 
     /// Most scrobbling clients will set the now-playing track as soon as the user starts playing it; this makes it 
     /// appear temporarily as the 'now listening' track on the user's profile. However use of this endpoint/method
@@ -146,15 +169,18 @@ impl Scrobbler {
     /// # Last.fm API Documentation
     /// [track.updateNowPlaying API Method Documentation](https://www.last.fm/api/show/track.updateNowPlaying)
     /// 
+    /// [Now Playing Request Documentation](https://www.last.fm/api/scrobbling#now-playing-requests)
+    /// 
+    /// [`Scrobble`]: struct.Scrobble.html
     /// [`Scrobbler::scrobble`]: struct.Scrobbler.html#method.scrobble
-    /// [`NowPlayingResponse`]: struct.NowPlayingResponse.html
+    /// [`NowPlayingResponse`]: responses/struct.NowPlayingResponse.html
     pub fn now_playing(&self, scrobble: &Scrobble) -> Result<NowPlayingResponse> {
         let params = scrobble.as_map();
 
         Ok(self.client.send_now_playing(&params)?)
     }
 
-    /// Registers a scrobble (play) of the given [`Scrobble`].
+    /// Registers a scrobble (play) of the given [`Scrobble`]/track.
     /// 
     /// # Usage
     /// Your [`Scrobbler`] must be fully authenticated before using [`Scrobbler::scrobble`].
@@ -175,10 +201,12 @@ impl Scrobbler {
     /// 
     /// # Last.fm API Documentation
     /// [track.scrobble API Method Documention](https://www.last.fm/api/show/track.scrobble)
+    /// [Scrobble Request Documentation](https://www.last.fm/api/scrobbling#scrobble-requests)
     /// 
     /// [`Scrobble`]: struct.Scrobble.html
     /// [`Scrobbler`]: struct.Scrobbler.html
     /// [`Scrobbler::scrobble`]: struct.Scrobbler.html#method.scrobble
+    /// [`ScrobbleResponse`]: responses/struct.ScrobbleResponse.html
     pub fn scrobble(&self, scrobble: &Scrobble) -> Result<ScrobbleResponse> {
         let mut params = scrobble.as_map();
         let current_time = UNIX_EPOCH.elapsed()?;
@@ -196,9 +224,11 @@ impl Scrobbler {
     /// which are be submitted to the Scrobble endpoint in a single batch. 
     /// 
     /// # Usage
-    /// Each [`ScrobbleBatch`] must contain 50 or fewer tracks. If a [ScrobbleBatch] containing more than 50
+    /// Each [`ScrobbleBatch`] must contain 50 or fewer tracks. If a [`ScrobbleBatch`] containing more than 50
     /// [`Scrobble`]s is submitted an error will be returned. An error will similarly be returned if the batch contains
     /// no [`Scrobble`]s.
+    /// 
+    /// EXAMPLE CODE HERE TODO(v1)
     /// 
     /// # Response
     /// On success, returns a [`ScrobbleBatchResponse`]. This can be ignored by most clients, but contains some data
@@ -207,9 +237,11 @@ impl Scrobbler {
     /// # Last.fm API Documentation
     /// [track.scrobble API Method Documention](https://www.last.fm/api/show/track.scrobble)
     /// 
+    /// [Scrobble Request Documentation](https://www.last.fm/api/scrobbling#scrobble-requests)
+    /// 
     /// [`ScrobbleBatch`]: struct.ScrobbleBatch.html
     /// [`Scrobble`]: struct.Scrobble.html
-    /// [`ScrobbleBatchResponse`]: struct.ScrobbleBatchResponse.html
+    /// [`ScrobbleBatchResponse`]: responses/struct.ScrobbleBatchResponse.html
     pub fn scrobble_batch(&self, batch: &ScrobbleBatch) -> Result<BatchScrobbleResponse> {
         let mut params = HashMap::new();
 

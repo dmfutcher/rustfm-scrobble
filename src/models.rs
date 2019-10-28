@@ -10,6 +10,13 @@ pub mod responses {
         pub session: SessionResponse,
     }
 
+    /// Response to an Authentication request. 
+    /// 
+    /// Contains a Session Key and the username of the authenticated Last.fm user and a subscriber ID.
+    /// Only the Session Key is used internally by the crate; the other values are exposed as they may have some value
+    /// for clients.
+    /// 
+    /// [Authentication API Requests Documentation](https://www.last.fm/api/authspec)
     #[derive(Deserialize, Debug, Clone)]
     pub struct SessionResponse {
         pub key: String,
@@ -22,6 +29,13 @@ pub mod responses {
         pub nowplaying: NowPlayingResponse,
     }
 
+    /// Response to a Now Playing request.
+    ///
+    /// Represents a response to a Now Playing API request. This type can often be ignored by clients. All of the 
+    /// fields are [`CorrectableString`] types, which can be used to see if Last.fm applied any metadata correction
+    /// to your artist, song or album. 
+    /// 
+    /// [Now Playing Request API Documentation](https://www.last.fm/api/show/track.updateNowPlaying)
     #[derive(Deserialize, Debug)]
     pub struct NowPlayingResponse {
         pub artist: CorrectableString,
@@ -41,6 +55,12 @@ pub mod responses {
         pub scrobble: ScrobbleResponse,
     }
 
+    /// Response to a Scrobble request
+    /// 
+    /// Represents a response to a Scrobble API request. Contains the results of the Scrobble call, including any 
+    /// metadata corrections the Last.fm API made to the arist/track/album submitted.
+    /// 
+    /// [Scrobble Request API Documentation](https://www.last.fm/api/show/track.scrobble)
     #[derive(Deserialize, Debug, WrappedVec)]
     #[CollectionName = "ScrobbleList"]
     #[CollectionDerives = "Debug, Deserialize"]
@@ -54,6 +74,12 @@ pub mod responses {
         //  TODO: Ignored field here? (#20)
     }
 
+    /// Response to a Batch Scrobble request
+    /// 
+    /// Represents a response to a batched Scrobble request. Contains the results of the Scrobble call, including
+    /// any metadata corrections the Last.fm API made to the arist/track/album submitted.
+    /// 
+    /// [Scrobble Request API Documentation](https://www.last.fm/api/show/track.scrobble)
     #[derive(Debug)]
     pub struct BatchScrobbleResponse {
         pub scrobbles: ScrobbleList,
@@ -70,6 +96,15 @@ pub mod responses {
         pub scrobbles: ScrobbleList,
     }
 
+    /// Represents a string that can be marked as 'corrected' by the Last.fm API. 
+    /// 
+    /// All Scrobble/NowPlaying responses have their fields as `CorrectableString`'s. The API will sometimes change
+    /// the artist/song name/album name data that you have submitted. For example - it is common for Bjork to be turned
+    /// into Björk by the API; the modified artist field would be marked `corrected = true`, `text = "Björk". 
+    /// 
+    /// Most clients can ignore these corrections, but the information is exposed for clients that require it.
+    /// 
+    /// [Meta-Data Correction Documentation](https://www.last.fm/api/scrobbling#meta-data-corrections)
     #[derive(Deserialize, Debug)]
     pub struct CorrectableString {
         #[serde(deserialize_with = "CorrectableString::deserialize_corrected_field")]
