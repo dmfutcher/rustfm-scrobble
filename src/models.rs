@@ -103,7 +103,16 @@ pub mod metadata {
 
     use std::collections::HashMap;
 
-    /// Repesents a single track play (aka a "scrobble")
+    /// Repesents a single music track played at a point in time. In the Last.fm universe, this is known as a 
+    /// "scrobble".
+    /// 
+    /// Takes an artist, track and album name. Can hold a timestamp indicating when the track was listened to.
+    /// `Scrobble` objects are submitted via [`Scrobbler::now_playing`], [`Scrobbler::scrobble`] and batches of
+    /// Scrobbles are sent via [`Scrobbler::scrobble_batch`].
+    /// 
+    /// [`Scrobbler::now_playing`]: struct.Scrobbler.html#method.now_playing
+    /// [`Scrobbler::scrobble`]: struct.Scrobbler.html#method.scrobble
+    /// [`Scrobbler::scrobble_batch`]: struct.Scrobbler.html#method.scrobble_batch
     #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, WrappedVec)]
     #[CollectionName = "ScrobbleBatch"]
     #[CollectionDoc = "A batch of Scrobbles to be submitted to Last.fm together."]
@@ -117,8 +126,17 @@ pub mod metadata {
     }
 
     impl Scrobble {
-        /// Constructs a new Scrobble instance, representing a music track
-        /// played in the past.
+    
+        /// Constructs a new Scrobble instance, representing a single playthrough of a music track. Scrobble's are 
+        /// submitted to Last.fm via an instance of [`Scrobbler`]. A new Scrobble requires an artist name, song/track
+        /// name, and an album name.
+        /// 
+        /// # Example
+        /// ```
+        /// let scrobble = Scrobble::new("Example Artist", "Example Track", "Example Album")
+        /// ```
+        /// 
+        /// [`Scrobbler`]: struct.Scrobbler.html
         pub fn new(artist: &str, track: &str, album: &str) -> Self {
             Self {
                 artist: artist.to_owned(),
@@ -130,15 +148,16 @@ pub mod metadata {
 
         /// Sets the timestamp (date/time of play) of a Scrobble. Used in a builder-style pattern, typically after 
         /// [`Scrobble::new`].
-        ///  
-        /// **Note:**  Scrobbles without timestamps are automatically assigned a timestamp of the current time when
-        /// submitted via [`Scrobbler::scrobble`] or [`Scrobbler::scrobble_batch`]. Timestamps only need to be 
-        /// explicitly set when you are submitting a Scrobble at a point in the past, or in the future.
         /// 
         /// # Example
         /// ```
-        /// let mut scrobble = Scrobble::new(...).with_timestamp(12345)
+        /// let mut scrobble = Scrobble::new(...).with_timestamp(12345);
         /// ```
+        ///
+        /// # Note on Timestamps
+        /// Scrobbles without timestamps are automatically assigned a timestamp of the current time when
+        /// submitted via [`Scrobbler::scrobble`] or [`Scrobbler::scrobble_batch`]. Timestamps only need to be 
+        /// explicitly set when you are submitting a Scrobble at a point in the past, or in the future.
         /// 
         /// [`Scrobble::new`]: struct.Scrobble.html#method.new
         /// [`Scrobbler::scrobble`]: struct.Scrobbler.html#method.scrobble
@@ -159,7 +178,7 @@ pub mod metadata {
         /// assert_eq!(scrobble_map.get("artist"), "Example Artist");
         /// ```
         /// 
-        /// [`HashMap`]: struct.HashMap.html
+        /// [`HashMap`]: struct.HashMap.html // TODO: This doesn't work
         pub fn as_map(&self) -> HashMap<String, String> {
             let mut params = HashMap::new();
             params.insert("track".to_string(), self.track.clone());
@@ -173,17 +192,21 @@ pub mod metadata {
             params
         }
 
+        /// Returns the `Scrobble`'s artist name
         pub fn artist(&self) -> &str {
             &self.artist
         }
 
+        /// Returns the `Scrobble`'s track name
         pub fn track(&self) -> &str {
             &self.track
         }
 
+        /// Returns the `Scrobble`'s album name
         pub fn album(&self) -> &str {
             &self.album
         }
+    
     }
 
     #[cfg(test)]
