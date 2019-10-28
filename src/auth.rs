@@ -27,9 +27,12 @@ enum CredentialsVariant {
 }
 
 impl UserCredentials {
+
+    /// Returns true when a valid username & password are set
     pub fn can_authenticate(&self) -> bool {
         !self.username.is_empty() && !self.password.is_empty()
     }
+
 }
 
 impl Credentials {
@@ -71,8 +74,7 @@ impl Credentials {
         self.session_key.as_ref().map(std::ops::Deref::deref)
     }
 
-    // Returns true if we have valid authentication parameters AND a session token
-    // TODO(v1): Comment doesn't match the function, has the check been changed to just session token? Why?
+    // Returns true if we are currently authenticated (have a valid session token set)
     pub fn is_authenticated(&self) -> bool {
         self.session_key.is_some()
     }
