@@ -162,8 +162,8 @@ pub mod metadata {
 
     impl Scrobble {
     
-        /// Constructs a new Scrobble instance, representing a single playthrough of a music track. Scrobble's are 
-        /// submitted to Last.fm via an instance of [`Scrobbler`]. A new Scrobble requires an artist name, song/track
+        /// Constructs a new Scrobble instance, representing a single playthrough of a music track. `Scrobble`s are 
+        /// submitted to Last.fm via an instance of [`Scrobbler`]. A new `Scrobble` requires an artist name, song/track
         /// name, and an album name.
         /// 
         /// # Example
@@ -202,7 +202,7 @@ pub mod metadata {
             self
         }
 
-        /// Converts the Scrobble metadata (track name, artist & album name) into a [`HashMap`]. Map keys are 
+        /// Converts the Scrobble metadata (track name, artist & album name) into a `HashMap`. Map keys are 
         /// `"track"`, `"artist"` and `"album"`. If a timestamp is set, it will be present in the map under key 
         /// `"timestamp"`.
         /// 
@@ -212,8 +212,6 @@ pub mod metadata {
         /// let scrobble_map = scrobble.as_map();
         /// assert_eq!(scrobble_map.get("artist"), "Example Artist");
         /// ```
-        /// 
-        /// [`HashMap`]: struct.HashMap.html // TODO: This doesn't work
         pub fn as_map(&self) -> HashMap<String, String> {
             let mut params = HashMap::new();
             params.insert("track".to_string(), self.track.clone());

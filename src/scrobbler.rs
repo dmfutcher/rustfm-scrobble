@@ -1,5 +1,5 @@
 use crate::client::LastFm;
-use crate::error::Error;
+use crate::error::ScrobblerError;
 use crate::models::metadata::{Scrobble, ScrobbleBatch};
 use crate::models::responses::{
     BatchScrobbleResponse, NowPlayingResponse, ScrobbleResponse, SessionResponse,
@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use std::result;
 use std::time::UNIX_EPOCH;
 
-type Result<T> = result::Result<T, Error>;
+type Result<T> = result::Result<T, ScrobblerError>;
 
 /// A Last.fm Scrobbler client. Submits song play information to Last.fm.
 /// 
@@ -43,7 +43,7 @@ impl Scrobbler {
     /// ```
     /// let api_secret = "xxx";
     /// let api_key = "123abc";
-    /// let scrobbler = Scrobbler::new(api_key, api_secret);
+    /// let mut scrobbler = Scrobbler::new(api_key, api_secret);
     /// ...
     /// // Authenticate user with one of the available auth methods
     /// ```
@@ -72,7 +72,7 @@ impl Scrobbler {
     /// 
     /// # Usage
     /// ```
-    /// let scrobbler = Scrobbler::new(...)
+    /// let mut scrobbler = Scrobbler::new(...)
     /// let username = "last-fm-user";
     /// let password = "hunter2";
     /// let response = scrobbler.authenticate_with_password(username, password);
@@ -96,7 +96,7 @@ impl Scrobbler {
     /// 
     /// # Usage
     /// ```
-    /// let scrobbler = Scrobbler.new(...);
+    /// let mut scrobbler = Scrobbler.new(...);
     /// let auth_token = "token-from-last-fm";
     /// let response = scrobbler.authenticate_with_token(auth_token);
     /// ```
@@ -114,7 +114,7 @@ impl Scrobbler {
     /// 
     /// # Usage
     /// ```
-    /// let scrobbler = Scrobbler::new(...);
+    /// let mut scrobbler = Scrobbler::new(...);
     /// let session_key = "securely-saved-old-session-key";
     /// let response = scrobbler.authenticate_with_session_key(session_key);
     /// ```
@@ -247,11 +247,11 @@ impl Scrobbler {
 
         let batch_count = batch.len();
         if batch_count > 50 {
-            return Err(Error::new(
+            return Err(ScrobblerError::new(
                 "Scrobble batch too large (must be 50 or fewer scrobbles)".to_owned(),
             ));
         } else if batch_count == 0 {
-            return Err(Error::new("Scrobble batch is empty".to_owned()));
+            return Err(ScrobblerError::new("Scrobble batch is empty".to_owned()));
         }
 
         for (i, scrobble) in batch.iter().enumerate() {
