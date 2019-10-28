@@ -167,7 +167,7 @@ pub mod metadata {
         /// name, and an album name.
         /// 
         /// # Example
-        /// ```
+        /// ```ignore
         /// let scrobble = Scrobble::new("Example Artist", "Example Track", "Example Album")
         /// ```
         /// 
@@ -185,7 +185,7 @@ pub mod metadata {
         /// [`Scrobble::new`].
         /// 
         /// # Example
-        /// ```
+        /// ```ignore
         /// let mut scrobble = Scrobble::new(...).with_timestamp(12345);
         /// ```
         ///
@@ -207,7 +207,7 @@ pub mod metadata {
         /// `"timestamp"`.
         /// 
         /// # Example
-        /// ```
+        /// ```ignore
         /// let scrobble = Scrobble::new("Example Artist", ...);
         /// let scrobble_map = scrobble.as_map();
         /// assert_eq!(scrobble_map.get("artist"), "Example Artist");

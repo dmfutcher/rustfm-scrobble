@@ -19,7 +19,7 @@ type Result<T> = result::Result<T, ScrobblerError>;
 /// See the [official scrobbling API documentation](https://www.last.fm/api/scrobbling) for more information.
 /// 
 /// High-level example usage:
-/// ```
+/// ```ignore
 /// let username = "last-fm-username";
 /// let password = "last-fm-password";
 /// let api_key = "client-api-key";
@@ -40,7 +40,7 @@ impl Scrobbler {
     /// Creates a new Scrobbler instance with the given Last.fm API Key and API Secret
     /// 
     /// # Usage
-    /// ```
+    /// ```ignore
     /// let api_secret = "xxx";
     /// let api_key = "123abc";
     /// let mut scrobbler = Scrobbler::new(api_key, api_secret);
@@ -71,7 +71,7 @@ impl Scrobbler {
     /// further information.
     /// 
     /// # Usage
-    /// ```
+    /// ```ignore
     /// let mut scrobbler = Scrobbler::new(...)
     /// let username = "last-fm-user";
     /// let password = "hunter2";
@@ -95,7 +95,7 @@ impl Scrobbler {
     /// your needs).
     /// 
     /// # Usage
-    /// ```
+    /// ```ignore
     /// let mut scrobbler = Scrobbler.new(...);
     /// let auth_token = "token-from-last-fm";
     /// let response = scrobbler.authenticate_with_token(auth_token);
@@ -113,7 +113,7 @@ impl Scrobbler {
     /// Authenticates a Last.fm user with a session key. 
     /// 
     /// # Usage
-    /// ```
+    /// ```ignore
     /// let mut scrobbler = Scrobbler::new(...);
     /// let session_key = "securely-saved-old-session-key";
     /// let response = scrobbler.authenticate_with_session_key(session_key);
@@ -152,7 +152,7 @@ impl Scrobbler {
     /// This method behaves largely identically to the [`Scrobbler::scrobble`] method, just pointing to a different
     /// endpoint on the Last.fm API.
     /// 
-    /// ```
+    /// ```ignore
     /// let scrobbler = Scrobbler::new(...);
     /// // Scrobbler authentication ...
     /// let now_playing_track = Scrobble::new("Example Artist", "Example Track", "Example Album");
@@ -185,7 +185,7 @@ impl Scrobbler {
     /// # Usage
     /// Your [`Scrobbler`] must be fully authenticated before using [`Scrobbler::scrobble`].
     /// 
-    /// ```
+    /// ```ignore
     /// let scrobbler = Scrobbler::new(...);
     /// // Scrobbler authentication ...
     /// let scrobble_track = Scrobble::new("Example Artist", "Example Track", "Example Album");
@@ -287,6 +287,7 @@ impl Scrobbler {
 mod tests {
     use super::*;
     use mockito::mock;
+    use std::error::Error;
 
     #[test]
     fn make_scrobbler_pass_auth() {
@@ -342,7 +343,7 @@ mod tests {
 
     #[test]
     fn check_scrobbler_error() {
-        let err = Error::new("test_error".into());
+        let err = ScrobblerError::new("test_error".into());
         let fmt = format!("{}", err);
         assert_eq!("test_error", fmt);
 

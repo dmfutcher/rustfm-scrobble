@@ -11,7 +11,7 @@
 //! these types to scrobble a track to Last.fm is given below.
 //! 
 //! # Example usage
-//! ```
+//! ```ignore
 //! use rustfm_scrobble::{Scrobble, Scrobbler};
 //! use std::error::Error;
 //!
