@@ -17,13 +17,51 @@ pub struct Scrobbler {
 }
 
 impl Scrobbler {
-    /// Creates a new Scrobbler with the given Last.fm API Key and API Secret
+
+    /// Creates a new Scrobbler instance with the given Last.fm API Key and API Secret
+    /// 
+    /// # Usage
+    /// ```
+    /// let api_secret = "xxx";
+    /// let api_key = "123abc";
+    /// let scrobbler = Scrobbler::new(api_key, api_secret);
+    /// ...
+    /// // Authenticate user with one of the available auth methods
+    /// ```
+    /// 
+    /// # API Credentials
+    /// All clients require the base API credentials: An API key and an API secret. These are obtained from Last.fm,
+    /// and are specific to each *client*. These are credentials are totally separate from user authentication.
+    /// 
+    /// More information on authentication and API clients can be found in the Last.fm API documentation:
+    /// 
+    /// [API Authentication documentation](https://www.last.fm/api/authentication)
+    /// 
+    /// [API Account Registration form](https://www.last.fm/api/account/create)
     pub fn new(api_key: &str, api_secret: &str) -> Self {
         let client = LastFm::new(api_key, api_secret);
 
         Self { client }
     }
 
+    /// Authenticates a Last.fm user with the given username and password. 
+    /// 
+    /// This authentication path is known as the 'Mobile auth flow', but is valid for any platform. This is often the
+    /// simplest method of authenticating a user with the API, requiring just username & password. Other Last.fm auth
+    /// flows are available and might be better suited to your application, check the official Last.fm API docs for 
+    /// further information.
+    /// 
+    /// # Usage
+    /// ```
+    /// let scrobbler = Scrobbler::new(...)
+    /// let username = "last-fm-user";
+    /// let password = "hunter2";
+    /// let response = scrobbler.authenticate_with_password(username, password);
+    /// ...
+    /// ```
+    /// 
+    /// # Last.fm API Documentation
+    /// [Last.fm Mobile Auth Flow Documentation](https://www.last.fm/api/mobileauth)
     pub fn authenticate_with_password(
         &mut self,
         username: &str,
@@ -33,17 +71,63 @@ impl Scrobbler {
         Ok(self.client.authenticate_with_password()?)
     }
 
+    /// Authenticates a Last.fm user with an authentication token. This method supports both the 'Web' and 'Desktop'
+    /// Last.fm auth flows (check the API documentation to ensure you are using the correct authentication method for
+    /// your needs).
+    /// 
+    /// # Usage
+    /// ```
+    /// let scrobbler = Scrobbler.new(...);
+    /// let auth_token = "token-from-last-fm";
+    /// let response = scrobbler.authenticate_with_token(auth_token);
+    /// ```
+    /// 
+    /// # Last.fm API Documentation
+    /// [Last.fm Web Auth Flow Documentation](https://www.last.fm/api/webauth)
+    /// 
+    /// [Last.fm Desktop Auth Flow Documentation](https://www.last.fm/api/desktopauth)
     pub fn authenticate_with_token(&mut self, token: &str) -> Result<SessionResponse> {
         self.client.set_user_token(token);
         Ok(self.client.authenticate_with_token()?)
     }
 
+    /// Authenticates a Last.fm user with a session key. 
+    /// 
+    /// # Usage
+    /// ```
+    /// let scrobbler = Scrobbler::new(...);
+    /// let session_key = "securely-saved-old-session-key";
+    /// let response = scrobbler.authenticate_with_session_key(session_key);
+    /// ```
+    /// # Response
+    /// 
+    /// # A Note on Session Keys
+    /// When authenticating successfully with username/password or with an authentication token (
+    /// [`authenticate_with_password`] or [`authenticate_with_token`]), the Last.fm API will provide a Session Key.
+    /// The Session Key is used internally to authenticate all subsequent requests to the Last.fm API. 
+    /// 
+    /// Session keys are valid _indefinitely_. Thus, they can be stored and used for authentication at a later time.
+    /// A common pattern would be to authenticate initially via a username/password (or any other authentication flow)
+    /// but store ONLY the session key (avoiding difficulties of securely storing usernames/passwords that can change 
+    /// etc.) and use this method to authenticate all further sessions. The current session key can be fetched for 
+    /// later use via [`Scrobbler::session_key`].
+    /// 
+    /// [`authenticate_with_password`]: struct.Scrobbler.html#method.authenticate_with_password
+    /// [`authenticate_with_token`]: struct.Scrobbler.html#method.authenticate_with_token
+    /// [`Scrobbler::session_key`]: struct.Scrobbler.html#method.session_key
     pub fn authenticate_with_session_key(&mut self, session_key: &str) {
         self.client.authenticate_with_session_key(session_key)
     }
 
     /// Registers the given track by the given artist as the currently authenticated user's
     /// "now playing" track.
+    /// 
+    /// # Usage
+    /// 
+    /// # Response
+    /// 
+    /// # Last.fm API Documentation
+    /// [track.updateNowPlaying API Method Documentation](https://www.last.fm/api/show/track.updateNowPlaying)
     pub fn now_playing(&self, scrobble: &Scrobble) -> Result<NowPlayingResponse> {
         let params = scrobble.as_map();
 
@@ -52,6 +136,13 @@ impl Scrobbler {
 
     /// Registers a scrobble (play) of the track with the given title by the given artist in
     /// the account of the currently authenticated user at the current time.
+    /// 
+    /// # Usage
+    /// 
+    /// # Response
+    /// 
+    /// # Last.fm API Documentation
+    /// [track.scrobble API Method Documention](https://www.last.fm/api/show/track.scrobble)
     pub fn scrobble(&self, scrobble: &Scrobble) -> Result<ScrobbleResponse> {
         let mut params = scrobble.as_map();
         let current_time = UNIX_EPOCH.elapsed()?;
@@ -63,6 +154,14 @@ impl Scrobbler {
         Ok(self.client.send_scrobble(&params)?)
     }
 
+    /// Registers a scrobble (play) of a collection of tracks. 
+    /// 
+    /// # Usage
+    /// 
+    /// # Response
+    /// 
+    /// # Last.fm API Documentation
+    /// [track.scrobble API Method Documention](https://www.last.fm/api/show/track.scrobble)
     pub fn scrobble_batch(&self, batch: &ScrobbleBatch) -> Result<BatchScrobbleResponse> {
         let mut params = HashMap::new();
 
@@ -92,9 +191,12 @@ impl Scrobbler {
         Ok(self.client.send_batch_scrobbles(&params)?)
     }
 
-    /// Gets the session key the client is currently authenticated with. Returns
-    /// `None` if not authenticated. Valid session keys can be stored and used
-    /// to authenticate with `authenticate_with_session_key`.
+    /// Gets the session key the client is currently authenticated with. Returns `None` if not authenticated. Valid
+    /// session keys can be stored and used to authenticate with [`authenticate_with_session_key`].
+    /// 
+    /// See [`authenticate_with_session_key`] for more information on Last.fm API Session Keys
+    /// 
+    /// [`authenticate_with_session_key`]: struct.Scrobbler.html#method.authenticate_with_session_key
     pub fn session_key(&self) -> Option<&str> {
         self.client.session_key()
     }
