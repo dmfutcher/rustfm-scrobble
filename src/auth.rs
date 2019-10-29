@@ -236,7 +236,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn check_get_bad_params() {
-        let auth_creds = Credentials::new_partial("Key".into(), "Secret".into());
+        let auth_creds = Credentials::new_partial("Key", "Secret");
         auth_creds.get_auth_request_params().unwrap();
     }
 

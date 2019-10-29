@@ -18,9 +18,5 @@ install:
     fi
 
 script:
-  - |
-    if [ "$TRAVIS_RUST_VERSION" == stable ]; then
-      cargo fmt --all -- --check
-    fi
   - cargo build --verbose
   - cargo test --no-fail-fast -- --nocapture

@@ -1,3 +1,4 @@
+#![doc(html_root_url = "https://docs.rs/rustfm-scrobble/1.0.0")]
 #![deny(clippy::all)]
 #![deny(clippy::pedantic)]
 //! # rustfm-scrobble
