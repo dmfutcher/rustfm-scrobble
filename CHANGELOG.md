@@ -1,6 +1,7 @@
 Version 1.0.0 - 2019-10-??
 ==========================
 
+  * Full API documented comprehensively (#19)
   * Simpler API interface (&str over String etc.) (@andy128k, #30)
   * Modernized and cleaned up internal code:
     * Use Rust Edition 2018 (@AnderEnder, #28)

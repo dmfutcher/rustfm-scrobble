@@ -71,7 +71,6 @@ pub mod responses {
         pub album_artist: CorrectableString,
         pub track: CorrectableString,
         pub timestamp: String,
-        //  TODO: Ignored field here? (#20)
     }
 
     /// Response to a Batch Scrobble request

@@ -263,7 +263,7 @@ impl Scrobbler {
 
             for (key, val) in &scrobble_params {
                 // batched parameters need array notation suffix ie.
-                // "artist[1]"" = "Artist 1", "artist[2]" = "Artist 2"
+                // "artist[1] = "Artist 1", "artist[2]" = "Artist 2"
                 params.insert(format!("{}[{}]", key, i), val.clone());
             }
         }

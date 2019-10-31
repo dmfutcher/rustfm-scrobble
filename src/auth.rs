@@ -172,7 +172,7 @@ mod tests {
             credentials: None,
             session_key: None,
         };
-        let rhs = Credentials::new_partial("Key".into(), "Secret".into());
+        let rhs = Credentials::new_partial("Key", "Secret");
 
         assert_eq!(lhs, rhs);
     }

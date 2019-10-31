@@ -41,6 +41,7 @@ pub struct LastFm {
 }
 
 impl LastFm {
+    
     pub fn new(api_key: &str, api_secret: &str) -> Self {
         let partial_auth = Credentials::new_partial(api_key, api_secret);
         let http_client = Client::new();
@@ -89,8 +90,11 @@ impl LastFm {
         Ok(decoded.session)
     }
 
+    /// Authenticates with a session key 
+    /// 
+    /// This requires no initial authentication with the API, so we simply store the key. It must be a valid session
+    /// key. Session keys are documented at `Scrobbler::authenticate_with_session_key`.
     pub fn authenticate_with_session_key(&mut self, session_key: &str) {
-        // TODO: How to verify session key at this point?
         self.auth.set_session_key(session_key)
     }
 
@@ -98,8 +102,6 @@ impl LastFm {
         self.auth.session_key()
     }
 
-    // TODO(v1): Is there a nicer way to do this than have a lot of moves and macros?
-    //              potentially could be cleaner?
     pub fn send_now_playing(
         &self,
         params: &HashMap<String, String>,
@@ -361,7 +363,7 @@ mod tests {
     }
 
     #[test]
-    fn sesh_keys() {
+    fn check_session_key_authentication() {
         let mut client = LastFm::new("key", "secret");
         client.set_user_credentials("user", "pass");
         client.authenticate_with_session_key("seshkey");
