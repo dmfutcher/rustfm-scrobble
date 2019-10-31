@@ -3,7 +3,7 @@ Version 1.0.0 - 2019-10-31
 
   * Full API documented comprehensively (#19)
   * Simpler API interface 
-    * Lots of improvements, particularly &str/String improvements) (@andy128k, #30)
+    * Lots of improvements, particularly &str/String improvements (@andy128k, #30)
     * Add From tuple trait implementations for Scrobble, ScrobbleBatch
   * Modernized and cleaned up internal code:
     * Use Rust Edition 2018 (@AnderEnder, #28)
@@ -13,6 +13,7 @@ Version 1.0.0 - 2019-10-31
   * Add unit test suite (@gbmor, #13, #40)
   * Remove deprecated `Scrobbler::authenticate` (@skneko, #31 #32)
   * Simplified and improved example code (#22)
+  * Update and improve README & repo documentation
   * Updated dependencies:
     * Replace outdated `rust-crypto` with `md5` crate (@AnderEnder, #34)
 
