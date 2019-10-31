@@ -3,3 +3,4 @@ Cargo.lock
 test
 example
 examples/*.rs
+.DS_Store
