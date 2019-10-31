@@ -19,7 +19,7 @@ or work with IoT Devices. It was initially built to implement a
 * [Code Examples](https://github.com/bobbo/rustfm-scrobble/tree/master/examples)
 * **Cargo.toml**: `rustfm-scrobble="1.0"`
 
-```
+```rust
 extern crate rustfm_scrobble;
 use rustfm_scrobble::{Scrobble, Scrobbler};
 
