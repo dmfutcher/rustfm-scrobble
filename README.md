@@ -4,28 +4,39 @@ rustfm-scrobble
 [![Latest Version](https://img.shields.io/crates/v/rustfm-scrobble.svg)](https://crates.io/crates/rustfm-scrobble)
 [![Build Status](https://travis-ci.org/bobbo/rustfm-scrobble.svg?branch=master)](https://travis-ci.org/bobbo/rustfm-scrobble)
 
-*rustfm-scrobble* is a [Last.fm Scrobble API 2.0](http://www.last.fm/api/scrobbling)
-library for Rust. It allows easy acccess to the "scrobble" and "now playing" notification
-endpoints through a simple Rust API.
+*rustfm-scrobble* is a [Last.fm Scrobble API 2.0](http://www.last.fm/api/scrobbling) crate for Rust. It allows easy 
+acccess to the "scrobble" and "now playing" notification endpoints through a simple Rust API. It can be used to record
+song-plays from music players, build analog scrobbling tools similar to [VinylScrobbler](https://vinylscrobbler.com/)
+or work with IoT Devices. It was initially built to implement a 
+[Spotify scrobbling service](https://github.com/bobbo/spotify-connect-scrobbler) using the 
+[Spotify Connect Protocol](https://www.spotify.com/uk/connect/) when the 
+[Alexa Spotify client](https://www.spotify.com/uk/amazonalexa/) did not support scrobbling plays to Last.fm.
+
 
 ## Usage
 
 * [API Documentation](https://docs.rs/rustfm-scrobble)
-* [Examples](https://github.com/bobbo/rustfm-scrobble/tree/master/examples)
+* [Code Examples](https://github.com/bobbo/rustfm-scrobble/tree/master/examples)
+* **Cargo.toml**: `rustfm-scrobble="1.0"`
 
-*rustfm-scrobble* exposes a single struct: `Scrobbler`. Use `Scrobbler::new()`
-with your [API key and API secret](https://www.last.fm/api/account/create) to build a new `Scrobbler`. Call
-`authenticate()` on your `Scrobbler` with the username & password of the user to
-record scrobbles against (this matches the UX of most popular clients like Spotify).
-Once the `Scrobbler` is authenticated, call `now_playing()` and `scrobble()` to
-update the user's now playing track or log a new scrobbled track. Note that *rustfm-scrobble*
-_does nothing to_ enforce [Last.fm's scrobble rules ](http://www.last.fm/api/scrobbling#when-is-a-scrobble-a-scrobble), this logic must
-be implemented by the client program.
+```
+extern crate rustfm_scrobble;
+use rustfm_scrobble::{Scrobble, Scrobbler};
+
+let username = "last-fm-username";
+let password = "last-fm-password";
+let api_key = "client-api-key";
+let api_secret = "client-api-secret";
+ 
+let mut scrobbler = Scrobbler.new(api_key, api_secret);
+scrobbler.authenticate_with_password(username, password);
+ 
+let song = Scrobble::new("Example Artist", "Example Song", "Example Album");
+scrobbler.scrobble(song);
+```
 
 ## Status
-*rustfm-scrobble* is _beta_ quality. It is feature complete (authentication,
-now playing and scrobbles all work correctly), however remains a work in progress
-and some public API modifications are expected.
+
 
 ## License
 
