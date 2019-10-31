@@ -226,9 +226,18 @@ impl Scrobbler {
     /// # Usage
     /// Each [`ScrobbleBatch`] must contain 50 or fewer tracks. If a [`ScrobbleBatch`] containing more than 50
     /// [`Scrobble`]s is submitted an error will be returned. An error will similarly be returned if the batch contains
-    /// no [`Scrobble`]s.
+    /// no [`Scrobble`]s. An example batch scrobbling client is in the `examples` directory: 
+    /// `examples/example_batch.rs`.
     /// 
-    /// EXAMPLE CODE HERE TODO(v1)
+    /// ```ignore
+    /// let tracks = vec![
+    ///     ("Artist 1", "Track 1", "Album 1"),
+    ///     ("Artist 2", "Track 2", "Album 2"),
+    /// ];
+    /// 
+    /// let batch = ScrobbleBatch::from(tracks);
+    /// let response = scrobbler.scrobble_batch(&batch);
+    /// ```
     /// 
     /// # Response
     /// On success, returns a [`ScrobbleBatchResponse`]. This can be ignored by most clients, but contains some data

@@ -1,8 +1,10 @@
-Version 1.0.0 - 2019-10-??
+Version 1.0.0 - 2019-10-31
 ==========================
 
   * Full API documented comprehensively (#19)
-  * Simpler API interface (&str over String etc.) (@andy128k, #30)
+  * Simpler API interface 
+    * Lots of improvements, particularly &str/String improvements) (@andy128k, #30)
+    * Add From tuple trait implementations for Scrobble, ScrobbleBatch
   * Modernized and cleaned up internal code:
     * Use Rust Edition 2018 (@AnderEnder, #28)
     * Use rustfmt to format code (@AnderEnder, #29)
