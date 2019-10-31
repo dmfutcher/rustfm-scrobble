@@ -241,6 +241,52 @@ pub mod metadata {
     
     }
 
+    /// Converts from tuple of `&str`s in the form `(artist, track, album)`
+    /// 
+    /// Designed to make it easier to cooperate with other track info types.
+    impl From<&(&str, &str, &str)> for Scrobble {
+        fn from((artist, track, album): &(&str, &str, &str)) -> Self {
+            Scrobble::new(artist, track, album)
+        }
+    }
+
+    /// Converts from tuple of `String`s in the form `(artist, track, album)`
+    /// 
+    /// Designed to make it easier to cooperate with other track info types.
+    impl From<&(String, String, String)> for Scrobble {
+        fn from((artist, track, album): &(String, String, String)) -> Self {
+            Scrobble::new(artist, track, album)
+        }
+    }
+
+    /// Converts from vector of `&str` tuples, in the form `(artist, track, album)`.
+    /// 
+    /// Designed to make it easier to cooperate with other track info types.
+    impl From<Vec<(&str, &str, &str)>> for ScrobbleBatch {
+        fn from(collection: Vec<(&str, &str, &str)>) -> Self {
+            let scrobbles: Vec<Scrobble> = collection
+                                .iter()
+                                .map(Scrobble::from)
+                                .collect();
+
+            ScrobbleBatch::from(scrobbles)
+        }
+    }
+
+    /// Converts from vector of `String` tuples, in the form `(artist, track, album)`.
+    /// 
+    /// Designed to make it easier to cooperate with other track info types.
+    impl From<Vec<(String, String, String)>> for ScrobbleBatch {
+        fn from(collection: Vec<(String, String, String)>) -> Self {
+            let scrobbles: Vec<Scrobble> = collection
+                                .iter()
+                                .map(Scrobble::from)
+                                .collect();
+
+            ScrobbleBatch::from(scrobbles)
+        }
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
