@@ -108,8 +108,6 @@ impl Credentials {
         Ok(params)
     }
 
-    // TODO(v1): Need to document all of this. And make it obvious how all the parts fit together. 
-    //              potentially not very clear right now (naming?)
     pub fn get_request_params(&self) -> HashMap<String, String> {
         let mut params = HashMap::new();
         params.insert("api_key".to_string(), self.api_key.clone());

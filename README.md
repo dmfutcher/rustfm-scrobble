@@ -12,11 +12,27 @@ or work with IoT Devices. It was initially built to implement a
 [Spotify Connect Protocol](https://www.spotify.com/uk/connect/) when the 
 [Alexa Spotify client](https://www.spotify.com/uk/amazonalexa/) did not support scrobbling plays to Last.fm.
 
+## Features
+
+* Scrobble songs to Last.fm ('scrobble' API endpoint)
+* Publish now-playing song to Last.fm ('now playing' API endpoint)
+* Batch scrobble support in `Scrobbler::scrobble_batch` and `ScrobbleBatch`
+* Multiple authentication flows to gain permissions to publish to Last.fm user profile
+    * Store a pre-authenticated session key & throw away secret data after initial authentication
+* Very simple error handling; each API operation returns a `Result` with a simple `Error` type on failure
+* Unit test suite
+
 
 ## Usage
 
 * [API Documentation](https://docs.rs/rustfm-scrobble)
 * [Code Examples](https://github.com/bobbo/rustfm-scrobble/tree/master/examples)
+    * Example now-playing & scrobbling client
+    * Example batch scrobbling client
+    * `cargo build --examples`
+    * `./target/debug/examples/example`
+* Build: `cargo build`
+* Run Unit tests: `cargo test`
 * **Cargo.toml**: `rustfm-scrobble="1.0"`
 
 ```rust
@@ -35,7 +51,10 @@ let song = Scrobble::new("Example Artist", "Example Song", "Example Album");
 scrobbler.scrobble(song);
 ```
 
+
 ## Status
+
+Version 1.0 has been released. The API is stable & backwards compatability will be guaranteed for all 1.0 releases.
 
 
 ## License
