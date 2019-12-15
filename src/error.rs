@@ -26,15 +26,7 @@ impl fmt::Display for ScrobblerError {
     }
 }
 
-impl StdError for ScrobblerError {
-    fn description(&self) -> &str {
-        self.err_msg.as_str()
-    }
-
-    fn cause(&self) -> Option<&dyn StdError> {
-        None
-    }
-}
+impl StdError for ScrobblerError {}
 
 impl From<SystemTimeError> for ScrobblerError {
     fn from(error: SystemTimeError) -> Self {
