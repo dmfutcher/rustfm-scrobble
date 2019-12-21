@@ -356,8 +356,8 @@ mod tests {
         let fmt = format!("{}", err);
         assert_eq!("test_error", fmt);
 
-        let desc = err.description();
-        assert_eq!("test_error", desc);
+        let desc = err.to_string();
+        assert_eq!("test_error", &desc);
 
         assert!(err.source().is_none());
     }
