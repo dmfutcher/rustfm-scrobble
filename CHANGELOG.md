@@ -1,3 +1,10 @@
+Version 1.1.0 - 2019-12-??
+==========================
+
+  * Update dependencies (works with rust 1.40, update md5 and mockito crate versions)
+  * Remove Remove deprecated `Error::description` and `cause` on `ScrobblerError` (@AnderEnder, #44)
+
+
 Version 1.0.0 - 2019-10-31
 ==========================
 
