@@ -1,4 +1,4 @@
-Version 1.1.0 - 2019-12-??
+Version 1.1.0 - 2020-??-??
 ==========================
 
   * Update dependencies (works with rust 1.40, update md5 and mockito crate versions)
