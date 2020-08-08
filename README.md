@@ -23,7 +23,7 @@ or work with IoT Devices. It was initially built to implement a
 * Unit tested
 
 ## Install
-Add *rustfm-scrobble* to your **Cargo.toml*.
+Add *rustfm-scrobble* to your **Cargo.toml**.
 
  ```
  [dependencies]
