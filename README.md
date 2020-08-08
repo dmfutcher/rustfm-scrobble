@@ -19,9 +19,16 @@ or work with IoT Devices. It was initially built to implement a
 * Batch scrobble support in `Scrobbler::scrobble_batch` and `ScrobbleBatch`
 * Multiple authentication flows to gain permissions to publish to Last.fm user profile
     * Store a pre-authenticated session key & throw away secret data after initial authentication
-* Very simple error handling; each API operation returns a `Result` with a simple `Error` type on failure
-* Unit test suite
+* Simple error handling; each API operation returns a `Result` with a simple `Error` type on failure
+* Unit tested
 
+## Install
+Add *rustfm-scrobble* to your **Cargo.toml*.
+
+ ```
+ [dependencies]
+ rustfm-scrobble="1.0"
+ ```
 
 ## Usage
 
@@ -33,7 +40,6 @@ or work with IoT Devices. It was initially built to implement a
     * `./target/debug/examples/example`
 * Build: `cargo build`
 * Run Unit tests: `cargo test`
-* **Cargo.toml**: `rustfm-scrobble="1.0"`
 
 ```rust
 extern crate rustfm_scrobble;
@@ -44,7 +50,7 @@ let password = "last-fm-password";
 let api_key = "client-api-key";
 let api_secret = "client-api-secret";
  
-let mut scrobbler = Scrobbler.new(api_key, api_secret);
+let mut scrobbler = Scrobbler::new(api_key, api_secret);
 scrobbler.authenticate_with_password(username, password);
  
 let song = Scrobble::new("Example Artist", "Example Song", "Example Album");
@@ -54,7 +60,7 @@ scrobbler.scrobble(song);
 
 ## Status
 
-Version 1.0 has been released. The API is stable & backwards compatability will be guaranteed for all 1.0 releases.
+Version 1.0 has been released. The API is stable & backwards compatibility will be guaranteed for all 1.0 releases.
 
 
 ## License
