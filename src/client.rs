@@ -278,11 +278,12 @@ mod tests {
         let resp = client.send_batch_scrobbles(&params);
         assert!(resp.is_err());
 
+        // Test with parsing single-scrobble response
         let _m = mock("POST", mockito::Matcher::Any)
             .with_body(
                 r#"
             { 
-                "scrobbles": [{
+                "scrobbles": {
                     "scrobble":
                         {
                             "artist": [ "0", "foo floyd and the fruit flies" ],
@@ -291,14 +292,45 @@ mod tests {
                             "track": [ "1", "old bananas"], 
                             "timestamp": "2019-10-04 13:23:40" 
                         }
-                }]
+                }
             }
             "#,
             )
             .create();
 
         let resp = client.send_batch_scrobbles(&params);
-        assert!(resp.is_err());
+        assert!(resp.is_ok());
+
+        // Test with parsing multi-scrobble response
+        let _m = mock("POST", mockito::Matcher::Any)
+            .with_body(
+                r#"
+            { 
+                "scrobbles": {
+                    "scrobble":[
+                        {
+                            "artist": [ "0", "foo floyd and the fruit flies" ],
+                            "album": [ "1", "old bananas" ], 
+                            "albumArtist": [ "0", "foo floyd"],
+                            "track": [ "1", "old bananas"], 
+                            "timestamp": "2019-10-04 13:23:40" 
+                        },
+                        {
+                            "artist": [ "0", "foo floyd and the fruit flies" ],
+                            "album": [ "1", "old bananas" ], 
+                            "albumArtist": [ "0", "foo floyd"],
+                            "track": [ "1", "old bananas"], 
+                            "timestamp": "2019-10-04 13:23:40" 
+                        }
+                    ]
+                }
+            }
+            "#,
+            )
+            .create();
+
+        let resp = client.send_batch_scrobbles(&params);
+        assert!(resp.is_ok());
     }
 
     #[test]
