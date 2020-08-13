@@ -1,4 +1,4 @@
-name: Rust
+name: rustfm-scrobble build
 
 on:
   push:
