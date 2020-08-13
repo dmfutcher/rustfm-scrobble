@@ -1,5 +1,6 @@
 // Last.fm scrobble API 2.0 client
 
+use json;
 use reqwest;
 use reqwest::{Client, StatusCode};
 use serde_json;
@@ -14,6 +15,7 @@ use crate::auth::Credentials;
 use crate::models::responses::{
     AuthResponse, BatchScrobbleResponse, BatchScrobbleResponseWrapper, NowPlayingResponse,
     NowPlayingResponseWrapper, ScrobbleResponse, ScrobbleResponseWrapper, SessionResponse,
+    ScrobbleList
 };
 
 pub enum ApiOperation {
@@ -138,11 +140,27 @@ impl LastFm {
             .send_authenticated_request(&ApiOperation::Scrobble, params)
             .map_err(|msg| format!("Batch scrobble request failed: {}", msg))?;
 
-        let wrapper: BatchScrobbleResponseWrapper = serde_json::from_str(body.as_str())
-            .map_err(|msg| format!("Batch scrobble request failed: {}", msg))?;
+        println!("body: {}", body);
+
+
+        let parsed = json::parse(&body).expect("Response body JSON parse failed");
+        let count_json = &parsed["scrobbles"]["@attr"]["accepted"];
+        if count_json.is_null() {
+            return Err("Scrobble count not present in response".to_owned());
+        }
+        
+        let count = count_json.as_i8().expect("Parsing scrobble count failed");
+        let scrobbles = match count {
+            1 => {
+                let scrobble_json = &parsed["scrobbles"]["scrobble"];
+            },
+            _ = > {
+
+            }
+        };
 
         Ok(BatchScrobbleResponse {
-            scrobbles: wrapper.scrobbles.scrobbles,
+            scrobbles: ScrobbleList::new(),
         })
     }
 

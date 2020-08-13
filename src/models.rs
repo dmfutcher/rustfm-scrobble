@@ -73,6 +73,12 @@ pub mod responses {
         pub timestamp: String,
     }
 
+    impl From<json::Value> for ScrobbleResponse {
+        fn from(json: json::Value) -> Self {
+            Scrobble::new(artist, track, album)
+        }
+    }
+
     /// Response to a Batch Scrobble request
     /// 
     /// Represents a response to a batched Scrobble request. Contains the results of the Scrobble call, including

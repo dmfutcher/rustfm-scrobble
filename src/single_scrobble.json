@@ -1,0 +1,31 @@
+{
+    "scrobbles": {
+        "@attr": {
+            "accepted": 1,
+            "ignored": 0
+        },
+        "scrobble": {
+            "artist": {
+                "corrected": "0",
+                "#text": "Los Campesinos!"
+            },
+            "ignoredMessage": {
+                "code": "0",
+                "#text": ""
+            },
+            "albumArtist": {
+                "corrected": "0",
+                "#text": ""
+            },
+            "timestamp": "1597163220",
+            "album": {
+                "corrected": "0",
+                "#text": "Hello Sadness"
+            },
+            "track": {
+                "corrected": "0",
+                "#text": "TO Tundra"
+            }
+        }
+    }
+}
