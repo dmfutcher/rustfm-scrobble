@@ -1,14 +1,9 @@
 // Last.fm scrobble API 2.0 client
 
-use reqwest;
 use reqwest::{Client, StatusCode};
-use serde_json;
 use std::collections::HashMap;
 use std::fmt;
 use std::io::Read;
-
-#[cfg(test)]
-use mockito;
 
 use crate::auth::Credentials;
 use crate::models::responses::{

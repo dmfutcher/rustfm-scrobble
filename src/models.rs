@@ -3,7 +3,6 @@ pub mod responses {
     use std::fmt;
 
     use serde::Deserialize;
-    use serde::de::{Deserializer, Visitor, MapAccess, SeqAccess};
     use serde_json as json;
 
     #[derive(Deserialize, Debug)]
@@ -100,7 +99,7 @@ pub mod responses {
     impl BatchScrobbles {
         fn deserialize_response_scrobbles<'de, D>(de: D) -> Result<ScrobbleList, D::Error>
         where
-            D: Deserializer<'de>,
+            D: serde::Deserializer<'de>,
         {
 
             let deser_result: json::Value = serde::Deserialize::deserialize(de)?;
