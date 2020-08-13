@@ -3,6 +3,7 @@ pub mod responses {
     use std::fmt;
 
     use serde::Deserialize;
+    use serde::de::{Deserializer, Visitor, MapAccess, SeqAccess};
     use serde_json as json;
 
     #[derive(Deserialize, Debug)]
@@ -91,8 +92,31 @@ pub mod responses {
 
     #[derive(Deserialize, Debug)]
     pub struct BatchScrobbles {
+        #[serde(deserialize_with = "BatchScrobbles::deserialize_response_scrobbles")]
         #[serde(rename = "scrobble")]
         pub scrobbles: ScrobbleList,
+    }
+
+    impl BatchScrobbles {
+        fn deserialize_response_scrobbles<'de, D>(de: D) -> Result<ScrobbleList, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+
+            let deser_result: json::Value = serde::Deserialize::deserialize(de)?;
+            let scrobbles = match deser_result {
+                obj@json::Value::Object(_) => {
+                    let scrobble: ScrobbleResponse = serde_json::from_value(obj).expect("Parsing scrobble failed");
+                    ScrobbleList::from(vec!(scrobble))
+                }
+                arr@json::Value::Array(_) => {
+                    let scrobbles: ScrobbleList = serde_json::from_value(arr).expect("Parsing scrobble list failed");
+                    scrobbles
+                },
+                _ => ScrobbleList::from(vec!())
+            };
+            Ok(scrobbles)
+        }
     }
 
     /// Represents a string that can be marked as 'corrected' by the Last.fm API. 
