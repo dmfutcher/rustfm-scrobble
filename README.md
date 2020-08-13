@@ -2,7 +2,7 @@ rustfm-scrobble
 ===============
 
 [![Latest Version](https://img.shields.io/crates/v/rustfm-scrobble.svg)](https://crates.io/crates/rustfm-scrobble)
-[![Build Status](https://travis-ci.org/bobbo/rustfm-scrobble.svg?branch=master)](https://travis-ci.org/bobbo/rustfm-scrobble)
+[![Rust](https://github.com/bobbo/rustfm-scrobble/workflows/Rust/badge.svg?branch=master&event=push)](https://github.com/bobbo/rustfm-scrobble/actions)
 
 *rustfm-scrobble* is a [Last.fm Scrobble API 2.0](http://www.last.fm/api/scrobbling) crate for Rust. It allows easy 
 acccess to the "scrobble" and "now playing" notification endpoints through a simple Rust API. It can be used to record
