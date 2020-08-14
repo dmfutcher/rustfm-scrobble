@@ -1,4 +1,4 @@
-name: rustfm-scrobble build
+name: rustfm-scrobble deploy
 
 on:
   push:
