@@ -1,9 +1,7 @@
 // Last.fm scrobble API 2.0 client
-
-use reqwest::{Client, StatusCode};
 use std::collections::HashMap;
 use std::fmt;
-use std::io::Read;
+use ureq;
 
 use crate::auth::Credentials;
 use crate::models::responses::{
@@ -32,14 +30,13 @@ impl fmt::Display for ApiOperation {
 
 pub struct LastFm {
     auth: Credentials,
-    http_client: Client,
+    http_client: ureq::Agent,
 }
 
 impl LastFm {
-    
     pub fn new(api_key: &str, api_secret: &str) -> Self {
         let partial_auth = Credentials::new_partial(api_key, api_secret);
-        let http_client = Client::new();
+        let http_client = ureq::agent();
 
         Self {
             auth: partial_auth,
@@ -163,17 +160,16 @@ impl LastFm {
         operation: &ApiOperation,
         params: HashMap<String, String>,
     ) -> Result<String, String> {
-        let mut resp = self
+        let resp = self
             .send_request(&operation, params)
             .map_err(|err| err.to_string())?;
 
-        let status = resp.status();
-        if status != StatusCode::OK {
-            return Err(format!("Non Success status ({})", status));
+        if resp.error() {
+            return Err(format!("Non Success status ({})", resp.status()));
         }
 
-        let mut resp_body = String::new();
-        resp.read_to_string(&mut resp_body)
+        let resp_body = resp
+            .into_string()
             .map_err(|_| "Failed to read response body".to_string())?;
 
         Ok(resp_body)
@@ -183,7 +179,7 @@ impl LastFm {
         &self,
         operation: &ApiOperation,
         mut params: HashMap<String, String>,
-    ) -> Result<reqwest::Response, reqwest::Error> {
+    ) -> Result<ureq::Response, String> {
         #[cfg(not(test))]
         let url = "https://ws.audioscrobbler.com/2.0/?format=json";
         #[cfg(test)]
@@ -194,7 +190,16 @@ impl LastFm {
         params.insert("method".to_string(), operation.to_string());
         params.insert("api_sig".to_string(), signature);
 
-        self.http_client.post(url).form(&params).send()
+        let params: Vec<(&str, &str)> = params
+            .iter()
+            .map(|(k, v)| (k.as_str(), v.as_str()))
+            .collect();
+
+        let resp = self.http_client.post(url).send_form(&params[..]);
+        match resp.synthetic_error() {
+            None => Ok(resp),
+            Some(e) => Err(e.to_string()),
+        }
     }
 }
 
