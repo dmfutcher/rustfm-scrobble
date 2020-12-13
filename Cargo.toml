@@ -1,6 +1,6 @@
 [package]
 name = "rustfm-scrobble"
-version = "1.0.1"
+version = "1.1.0"
 authors = ["David Futcher <david@futcher.io>"]
 description = "Last.fm Scrobble crate for Rust"
 repository = "https://github.com/bobbo/rustfm-scrobble"
@@ -18,4 +18,4 @@ serde_json = "1"
 wrapped-vec = "0.2"
 
 [dev-dependencies]
-mockito = "0.23"
+mockito = "0.28"
