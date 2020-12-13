@@ -27,7 +27,7 @@ Add *rustfm-scrobble* to your **Cargo.toml**.
 
  ```
  [dependencies]
- rustfm-scrobble="1.0"
+ rustfm-scrobble="1.1"
  ```
 
 ## Usage
@@ -57,10 +57,15 @@ let song = Scrobble::new("Example Artist", "Example Song", "Example Album");
 scrobbler.scrobble(song);
 ```
 
+### In Use
+
+*rustfm-scrobble* is used in several projects including [polaris](https://github.com/agersant/polaris), [connectr](https://github.com/mrmekon/connectr),
+[rescrobbled](https://github.com/InputUsername/rescrobbled) and [rb-scrobbler](https://github.com/Jeselnik/rb-scrobbler).
+
 
 ## Status
 
-Version 1.0 has been released. The API is stable & backwards compatibility will be guaranteed for all 1.0 releases.
+The API is stable & backwards compatibility will be guaranteed for all 1.0 releases.
 
 
 ## License

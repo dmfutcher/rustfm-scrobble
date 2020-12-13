@@ -1,3 +1,9 @@
+Version 1.1.0 - 2020-12-13
+========================
+
+  * Replace `reqwest` HTTP client with `ureq` (@agersant, #47, £48)
+
+
 Version 1.0.1 - 2020-08-14
 ==========================
 
